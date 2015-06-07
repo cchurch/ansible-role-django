@@ -6,6 +6,6 @@ before_install:
  - sudo apt-get update -qq
  - sudo apt-get install -qq python-apt
 install:
-  - pip install ansible>=1.8 django<1.7
+  - pip install requirements.txt
 script:
   - ansible-playbook -i localhost, -c local -vv test/main.yml
