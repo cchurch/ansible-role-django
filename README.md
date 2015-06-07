@@ -1,5 +1,5 @@
 [![Build Status](http://img.shields.io/travis/cchurch/ansible-role-django.svg)](https://travis-ci.org/cchurch/ansible-role-django)
-[![Galaxy](http://img.shields.io/badge/galaxy-cchurch.django-blue.svg)](https://galaxy.ansible.com/list#/roles/)
+[![Galaxy](http://img.shields.io/badge/galaxy-cchurch.django-blue.svg)](https://galaxy.ansible.com/list#/roles/4069)
 
 Django
 ======
