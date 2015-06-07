@@ -1,0 +1,70 @@
+---
+
+- name: set default variables
+  set_fact:
+    django_app_path: '{{django_app_path|mandatory}}'
+    django_user: '{{django_user|default(ansible_ssh_user,true)}}'
+
+- name: install settings files from templates
+  template:
+    src: '{{item.src|mandatory}}'
+    dest: '{{item.dest|mandatory}}'
+    owner: '{{item.owner|default(django_user,true)}}'
+    group: '{{item.group|default(omit,true)}}'
+    mode: '{{item.mode|default(omit,true)}}'
+    backup: '{{item.backup|default(omit)}}'
+  with_items: django_settings_templates
+
+- name: run django pre commands
+  django_manage:
+    app_path: '{{django_app_path}}'
+    settings: '{{django_settings|default(omit,true)}}'
+    virtualenv: '{{django_virtualenv|default(omit,true)}}'
+    command: '{{item.command|default(item)}}'
+    apps: '{{item.apps|default(omit)}}'
+    cache_table: '{{item.cache_table|default(omit)}}'
+    database: '{{item.database|default(omit)}}'
+    failfast: '{{item.failfast|default(omit)}}'
+    fixtures: '{{item.fixtures|default(omit)}}'
+    link: '{{item.link|default(omit)}}'
+    merge: '{{item.merge|default(omit)}}'
+    skip: '{{item.skip|default(omit)}}'
+  sudo: '{{(django_user != ansible_ssh_user)|bool}}'
+  sudo_user: '{{django_user}}'
+  with_items: django_pre_commands
+
+- name: run main django commands
+  django_manage:
+    app_path: '{{django_app_path}}'
+    settings: '{{django_settings|default(omit,true)}}'
+    virtualenv: '{{django_virtualenv|default(omit,true)}}'
+    command: '{{item.command|default(item)}}'
+    apps: '{{item.apps|default(omit)}}'
+    cache_table: '{{item.cache_table|default(omit)}}'
+    database: '{{item.database|default(omit)}}'
+    failfast: '{{item.failfast|default(omit)}}'
+    fixtures: '{{item.fixtures|default(omit)}}'
+    link: '{{item.link|default(omit)}}'
+    merge: '{{item.merge|default(omit)}}'
+    skip: '{{item.skip|default(omit)}}'
+  sudo: '{{(django_user != ansible_ssh_user)|bool}}'
+  sudo_user: '{{django_user}}'
+  with_items: django_main_commands
+
+- name: run django post commands
+  django_manage:
+    app_path: '{{django_app_path}}'
+    settings: '{{django_settings|default(omit,true)}}'
+    virtualenv: '{{django_virtualenv|default(omit,true)}}'
+    command: '{{item.command|default(item)}}'
+    apps: '{{item.apps|default(omit)}}'
+    cache_table: '{{item.cache_table|default(omit)}}'
+    database: '{{item.database|default(omit)}}'
+    failfast: '{{item.failfast|default(omit)}}'
+    fixtures: '{{item.fixtures|default(omit)}}'
+    link: '{{item.link|default(omit)}}'
+    merge: '{{item.merge|default(omit)}}'
+    skip: '{{item.skip|default(omit)}}'
+  sudo: '{{(django_user != ansible_ssh_user)|bool}}'
+  sudo_user: '{{django_user}}'
+  with_items: django_post_commands

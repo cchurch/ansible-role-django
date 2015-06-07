@@ -1,0 +1,4 @@
+ansible==1.9.1
+bumpversion==0.5.3
+Django==1.6.11
+South==1.0.2

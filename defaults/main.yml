@@ -1,0 +1,16 @@
+---
+
+django_settings_templates: []
+
+django_settings: ''
+
+django_virtualenv: ''
+
+django_pre_commands: []
+
+django_main_commands:
+  - syncdb
+  - migrate
+  - collectstatic
+
+django_post_commands: []

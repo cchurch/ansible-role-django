@@ -1,0 +1,4 @@
+*.pyc
+db.sqlite3
+public
+settings/test.py*
