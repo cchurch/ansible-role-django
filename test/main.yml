@@ -27,5 +27,15 @@
         - "{{test_path}}/proj/this"
         - "{{test_path}}/proj/db.sqlite3"
         - "{{test_path}}/proj/settings/test.py"
+    - assert:
+        that:
+          - ansible_sudo is not defined
+          - ansible_sudo_user is not defined
   roles:
     - role: cchurch.django
+  post_tasks:
+    - assert:
+        that:
+          - ansible_sudo is not defined
+          - ansible_sudo_user is not defined
+    

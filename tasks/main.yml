@@ -24,67 +24,8 @@
     backup: '{{item.backup|default(omit)}}'
   with_items: django_settings_templates
 
-- name: save current value of ansible_sudo (if defined)
-  set_fact:
-    django_ansible_sudo: '{{ansible_sudo|bool}}'
-  when: ansible_sudo is defined
-
-- name: set ansible_sudo for the following tasks
-  set_fact:
+- name: run included tasks with sudo depending on django_user
+  include: 'included.yml'
+  vars:
     ansible_sudo: '{{(django_user != ansible_ssh_user)|bool}}'
-
-- name: run django pre commands
-  django_manage:
-    app_path: '{{django_app_path}}'
-    settings: '{{django_settings|default(omit,true)}}'
-    virtualenv: '{{django_virtualenv|default(omit,true)}}'
-    command: '{{item.command|default(item)}}'
-    apps: '{{item.apps|default(omit)}}'
-    cache_table: '{{item.cache_table|default(omit)}}'
-    database: '{{item.database|default(omit)}}'
-    failfast: '{{item.failfast|default(omit)}}'
-    fixtures: '{{item.fixtures|default(omit)}}'
-    link: '{{item.link|default(omit)}}'
-    merge: '{{item.merge|default(omit)}}'
-    skip: '{{item.skip|default(omit)}}'
-  sudo_user: '{{django_user}}'
-  with_items: django_pre_commands
-
-- name: run main django commands
-  django_manage:
-    app_path: '{{django_app_path}}'
-    settings: '{{django_settings|default(omit,true)}}'
-    virtualenv: '{{django_virtualenv|default(omit,true)}}'
-    command: '{{item.command|default(item)}}'
-    apps: '{{item.apps|default(omit)}}'
-    cache_table: '{{item.cache_table|default(omit)}}'
-    database: '{{item.database|default(omit)}}'
-    failfast: '{{item.failfast|default(omit)}}'
-    fixtures: '{{item.fixtures|default(omit)}}'
-    link: '{{item.link|default(omit)}}'
-    merge: '{{item.merge|default(omit)}}'
-    skip: '{{item.skip|default(omit)}}'
-  sudo_user: '{{django_user}}'
-  with_items: django_main_commands
-
-- name: run django post commands
-  django_manage:
-    app_path: '{{django_app_path}}'
-    settings: '{{django_settings|default(omit,true)}}'
-    virtualenv: '{{django_virtualenv|default(omit,true)}}'
-    command: '{{item.command|default(item)}}'
-    apps: '{{item.apps|default(omit)}}'
-    cache_table: '{{item.cache_table|default(omit)}}'
-    database: '{{item.database|default(omit)}}'
-    failfast: '{{item.failfast|default(omit)}}'
-    fixtures: '{{item.fixtures|default(omit)}}'
-    link: '{{item.link|default(omit)}}'
-    merge: '{{item.merge|default(omit)}}'
-    skip: '{{item.skip|default(omit)}}'
-  sudo_user: '{{django_user}}'
-  with_items: django_post_commands
-
-- name: restore previous value of ansible_sudo (if defined)
-  set_fact:
-    ansible_sudo: '{{django_ansible_sudo|bool}}'
-  when: django_ansible_sudo is defined
+    ansible_sudo_user: '{{django_user}}'
