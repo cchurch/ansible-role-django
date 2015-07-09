@@ -1,6 +1,6 @@
 ---
 
-- name: run django pre commands
+- name: run django pre commands with sudo
   django_manage:
     app_path: '{{django_app_path}}'
     settings: '{{django_settings|default(omit,true)}}'
@@ -15,8 +15,10 @@
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
   with_items: django_pre_commands
+  sudo: yes
+  sudo_user: '{{django_user}}'
 
-- name: run main django commands
+- name: run main django commands with sudo
   django_manage:
     app_path: '{{django_app_path}}'
     settings: '{{django_settings|default(omit,true)}}'
@@ -31,8 +33,10 @@
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
   with_items: django_main_commands
+  sudo: yes
+  sudo_user: '{{django_user}}'
 
-- name: run django post commands
+- name: run django post commands with sudo
   django_manage:
     app_path: '{{django_app_path}}'
     settings: '{{django_settings|default(omit,true)}}'
@@ -47,3 +51,5 @@
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
   with_items: django_post_commands
+  sudo: yes
+  sudo_user: '{{django_user}}'
