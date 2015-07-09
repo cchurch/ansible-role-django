@@ -15,6 +15,15 @@
     backup: '{{item.backup|default(omit)}}'
   with_items: django_settings_templates
 
+- name: save current value of ansible_sudo (if defined)
+  set_fact:
+    django_ansible_sudo: '{{ansible_sudo|bool}}'
+  when: ansible_sudo is defined
+
+- name: set ansible_sudo for the following tasks
+  set_fact:
+    ansible_sudo: '{{(django_user != ansible_ssh_user)|bool}}'
+
 - name: run django pre commands
   django_manage:
     app_path: '{{django_app_path}}'
@@ -29,7 +38,6 @@
     link: '{{item.link|default(omit)}}'
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
-  sudo: '{{(django_user != ansible_ssh_user)|bool}}'
   sudo_user: '{{django_user}}'
   with_items: django_pre_commands
 
@@ -47,7 +55,6 @@
     link: '{{item.link|default(omit)}}'
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
-  sudo: '{{(django_user != ansible_ssh_user)|bool}}'
   sudo_user: '{{django_user}}'
   with_items: django_main_commands
 
@@ -65,6 +72,10 @@
     link: '{{item.link|default(omit)}}'
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
-  sudo: '{{(django_user != ansible_ssh_user)|bool}}'
   sudo_user: '{{django_user}}'
   with_items: django_post_commands
+
+- name: restore previous value of ansible_sudo (if defined)
+  set_fact:
+    ansible_sudo: '{{django_ansible_sudo|bool}}'
+  when: django_ansible_sudo is defined
