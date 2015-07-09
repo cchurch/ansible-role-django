@@ -8,6 +8,8 @@
     django_settings_templates:
       - src: "{{test_path}}/test.py.j2"
         dest: "{{test_path}}/proj/settings/test.py"
+      - src: "{{test_path}}/test.py.j2"
+        dest: "{{test_path}}/proj/this/path/should/be/created.py"
     django_settings: proj.settings.test
     django_pre_commands:
       - validate
@@ -22,6 +24,7 @@
         state: absent
       with_items:
         - "{{test_path}}/proj/public"
+        - "{{test_path}}/proj/this"
         - "{{test_path}}/proj/db.sqlite3"
         - "{{test_path}}/proj/settings/test.py"
   roles:

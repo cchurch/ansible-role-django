@@ -5,6 +5,15 @@
     django_app_path: '{{django_app_path|mandatory}}'
     django_user: '{{django_user|default(ansible_ssh_user,true)}}'
 
+- name: create directories needed for settings files
+  file:
+    path: '{{item.dest|mandatory|dirname}}'
+    owner: '{{item.dir_owner|default((item.owner|default(django_user,true)),true)}}'
+    group: '{{item.dir_group|default((item.group|default(omit,true)),true)}}'
+    mode: '{{item.dir_mode|default((item.mode|default(omit,true)),true)}}'
+    state: directory
+  with_items: django_settings_templates
+
 - name: install settings files from templates
   template:
     src: '{{item.src|mandatory}}'
