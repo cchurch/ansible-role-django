@@ -14,7 +14,7 @@
     link: '{{item.link|default(omit)}}'
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
-  with_items: django_pre_commands
+  with_items: '{{ django_pre_commands }}'
 
 - name: run main django commands without sudo
   django_manage:
@@ -30,7 +30,7 @@
     link: '{{item.link|default(omit)}}'
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
-  with_items: django_main_commands
+  with_items: '{{ django_main_commands }}'
 
 - name: run django post commands without sudo
   django_manage:
@@ -46,4 +46,4 @@
     link: '{{item.link|default(omit)}}'
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
-  with_items: django_post_commands
+  with_items: '{{ django_post_commands }}'

@@ -14,7 +14,7 @@
     link: '{{item.link|default(omit)}}'
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
-  with_items: django_pre_commands
+  with_items: '{{ django_pre_commands }}'
   sudo: yes
   sudo_user: '{{django_user}}'
 
@@ -32,7 +32,7 @@
     link: '{{item.link|default(omit)}}'
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
-  with_items: django_main_commands
+  with_items: '{{ django_main_commands }}'
   sudo: yes
   sudo_user: '{{django_user}}'
 
@@ -50,6 +50,6 @@
     link: '{{item.link|default(omit)}}'
     merge: '{{item.merge|default(omit)}}'
     skip: '{{item.skip|default(omit)}}'
-  with_items: django_post_commands
+  with_items: '{{ django_post_commands }}'
   sudo: yes
   sudo_user: '{{django_user}}'
