@@ -1,0 +1,5 @@
+---
+
+- src: cchurch.virtualenv
+- src: chrismeyersfsu.provision_docker
+- src: geerlingguy.repo-epel

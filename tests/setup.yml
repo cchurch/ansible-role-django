@@ -1,0 +1,51 @@
+---
+
+- name: launch docker containers
+  hosts: local
+  gather_facts: false
+  roles:
+    - role: chrismeyersfsu.provision_docker
+
+- name: install epel for centos containers
+  hosts: containers:&centos
+  roles:
+    - role: geerlingguy.repo-epel
+  post_tasks:
+    - name: install ius repository
+      yum:
+        name: https://centos6.iuscommunity.org/ius-release.rpm
+      when: 'ansible_distribution_major_version == 6'
+    - name: install python 2.7 pip and virtualenv on centos6
+      yum:
+        name: '{{item}}'
+      when: 'ansible_distribution_major_version == 6'
+      with_items:
+        - python27-pip
+        - python27-virtualenv
+
+- name: check and install python on ubuntu containers
+  hosts: containers:&ubuntu
+  gather_facts: false
+  tasks:
+    - name: check for and install python
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+
+- name: configure sudo, rsync and python on containers
+  hosts: containers
+  tasks:
+    - name: install sudo and rsync
+      package:
+        name: '{{item}}'
+        state: present
+      with_items:
+        - sudo
+        - rsync
+        - python-pip
+        - python-virtualenv
+    - name: enable sudo with no password
+      copy:
+        content: '%{% if ansible_os_family == "RedHat" %}wheel{% else %}sudo{% endif %} ALL=(ALL) NOPASSWD: ALL'
+        dest: /etc/sudoers.d/sudo_nopasswd
+        mode: 0440
+        owner: root
+        group: root

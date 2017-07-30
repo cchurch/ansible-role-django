@@ -1,3 +1,9 @@
 tmp
 test/tmp
 test/proj/this
+*.retry
+*.pyc
+.tox
+tests/roles/cchurch.virtualenv
+tests/roles/chrismeyersfsu.provision_docker
+tests/roles/geerlingguy.repo-epel

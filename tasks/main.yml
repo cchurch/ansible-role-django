@@ -1,33 +1,35 @@
 ---
 
-- name: set default variables
+- name: determine current user
+  command: whoami
+  register: _django_whoami_result
+  changed_when: false
+
+- name: initialize default variables
   set_fact:
-    django_app_path: '{{django_app_path|mandatory}}'
-    django_user: '{{django_user|default(ansible_ssh_user,true)}}'
+    _django_app_path: '{{django_app_path|mandatory}}'
+    _django_user: '{{django_user|default(ansible_user,true)|default(ansible_ssh_user,true)}}'
+    _django_becoming: '{{((_django_whoami_result.stdout != ansible_user and _django_whoami_result.stdout != ansible_ssh_user) or _django_whoami_result.stdout == "root")|bool}}'
+    _django_actual_user: '{{_django_whoami_result.stdout}}'
 
-- name: create directories needed for settings files
-  file:
-    path: '{{item.dest|mandatory|dirname}}'
-    owner: '{{item.dir_owner|default((item.owner|default(django_user,true)),true)}}'
-    group: '{{item.dir_group|default((item.group|default(omit,true)),true)}}'
-    mode: '{{item.dir_mode|default((item.mode|default(omit,true)),true)}}'
-    state: directory
-  with_items: '{{ django_settings_templates }}'
+- name: run update tasks with become
+  include: update.yml
+  when: _django_user != _django_actual_user
+  become: yes
+  become_user: '{{_django_user}}'
 
-- name: install settings files from templates
-  template:
-    src: '{{item.src|mandatory}}'
-    dest: '{{item.dest|mandatory}}'
-    owner: '{{item.owner|default(django_user,true)}}'
-    group: '{{item.group|default(omit,true)}}'
-    mode: '{{item.mode|default(omit,true)}}'
-    backup: '{{item.backup|default(omit)}}'
-  with_items: '{{ django_settings_templates }}'
+- name: run update tasks without become
+  include: update.yml
+  when: _django_user == _django_actual_user
 
-- name: run included tasks with sudo
-  include: 'with_sudo.yml'
-  when: django_user != ansible_ssh_user
-
-- name: run included tasks without sudo
-  include: 'without_sudo.yml'
-  when: django_user == ansible_ssh_user
+- name: notify handler if anything changed
+  set_fact:
+    _django_updated: >
+      {{(_django_directories_results.changed or
+      _django_settings_directories_results.changed or
+      _django_settings_templates_results.changed or
+      _django_pre_commands_results.changed or
+      _django_main_commands_results.changed or
+      _django_post_commands_results.changed)}}
+  changed_when: _django_updated
+  notify: '{{django_notify_on_updated|default("django default handler",true)}}'

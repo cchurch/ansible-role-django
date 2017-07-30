@@ -1,0 +1,172 @@
+---
+
+- name: setup for tests
+  hosts: containers
+  tags: [always]
+  tasks:
+    - name: remove test django paths
+      file:
+        path: '{{item}}'
+        state: absent
+      with_items:
+        - /home/admin/test_django
+        - /home/normal/test_django
+        - /home/normal/test_django_venv
+    - name: create admin user to test become capabilities
+      user:
+        name: admin
+        createhome: true
+        home: /home/admin
+        password: '$6$8yuM3YVsSYTjtPr$b742a/sSdpKpyuC9J7L2fHRrV1pUtHeJuUj6KrjQ7UsHRrT8ffvqnoUutJLVqIArHnm3/0GtF5DH5hnLn8rJo1'
+        groups: '{% if ansible_os_family == "RedHat" %}wheel{% else %}sudo{% endif %}'
+    - name: create normal user to test become capabilities
+      user:
+        name: normal
+        createhome: true
+        home: /home/normal
+        password: '$6$8yuM3YVsSYTjtPr$b742a/sSdpKpyuC9J7L2fHRrV1pUtHeJuUj6KrjQ7UsHRrT8ffvqnoUutJLVqIArHnm3/0GtF5DH5hnLn8rJo1'
+    - name: install global test project requirements
+      pip:
+        name: 'Django==1.11.3'
+        executable: '{% if ansible_os_family == "RedHat" %}pip2.7{% else %}pip{% endif %}'
+
+- name: test configuring django project as admin user
+  hosts: containers
+  gather_facts: false
+  tags: [admin, nobecome]
+  vars:
+    ansible_user: admin
+    ansible_pass: testpass
+    django_app_path: /home/admin/test_django
+  pre_tasks:
+    - name: create django path
+      file:
+        path: '{{django_app_path}}'
+        state: directory
+    - name: copy test django project
+      synchronize: 
+        src: '{{playbook_dir}}/files/'
+        dest: '{{django_app_path}}/'
+        rsync_opts:
+          - '--exclude=*.pyc'
+          - '--exclude=db.sqlite3'
+  roles:
+    - role: cchurch.django
+      django_notify_on_updated: django initial update
+    - role: cchurch.django
+      django_notify_on_updated: django no change update
+    - role: cchurch.django
+      django_notify_on_updated: django changed when update
+      django_pre_commands:
+        - command: check
+          changed_when: 'result.out'
+  post_tasks:
+    - name: run handlers now
+      meta: flush_handlers
+    - name: check that database file was created
+      stat:
+        path: '{{django_app_path}}/proj/db.sqlite3'
+      register: test_django_db_file
+      failed_when: not test_django_db_file.stat.exists or test_django_db_file.stat.pw_name != "admin"
+    - name: check that static root was created
+      stat:
+        path: '{{django_static_root}}'
+      register: test_django_static_dir
+      failed_when: not test_django_static_dir.stat.exists or test_django_static_dir.stat.pw_name != "admin"
+    - name: check that expected handlers ran
+      assert:
+        that:
+          - django_initial_update_handled
+          - django_no_change_update_handled is not defined
+          - django_changed_when_update_handled
+  handlers:
+    - name: django initial update
+      set_fact:
+        django_initial_update_handled: true
+    - name: django no change update
+      set_fact:
+        django_no_change_update_handled: true
+    - name: django changed when update
+      set_fact:
+        django_changed_when_update_handled: true
+
+- name: test becoming normal user from admin user to update django
+  hosts: containers
+  gather_facts: false
+  tags: [admin, normal, become]
+  vars:
+    ansible_user: admin
+    ansible_pass: testpass
+    django_app_path: /home/normal/test_django
+    django_user: normal
+  pre_tasks:
+    - name: create django path
+      file:
+        path: '{{django_app_path}}'
+        state: directory
+      become: true
+      become_user: normal
+    - name: copy test django project
+      synchronize: 
+        src: '{{playbook_dir}}/files/'
+        dest: '{{django_app_path}}/'
+        rsync_opts:
+          - '--exclude=*.pyc'
+          - '--exclude=db.sqlite3'
+      become: true
+      become_user: normal
+  roles:
+    - role: cchurch.django
+  post_tasks:
+    - name: check that database file was created
+      stat:
+        path: '{{django_app_path}}/proj/db.sqlite3'
+      become: true
+      register: test_django_db_file
+      failed_when: not test_django_db_file.stat.exists or test_django_db_file.stat.pw_name != "normal"
+    - name: check that static root was created
+      stat:
+        path: '{{django_static_root}}'
+      become: true
+      register: test_django_static_dir
+      failed_when: not test_django_static_dir.stat.exists or test_django_static_dir.stat.pw_name != "normal"
+
+- name: test as normal unprivileged user creating a virtualenv
+  hosts: containers
+  gather_facts: false
+  tags: [normal, virtualenv]
+  vars:
+    ansible_user: normal
+    ansible_pass: testpass
+    django_app_path: /home/normal/test_django_venv
+    django_virtualenv: '{{django_app_path}}/env'
+    virtualenv_path: '{{django_virtualenv}}'
+    virtualenv_command: '{% if ansible_os_family == "RedHat" %}virtualenv-2.7{% else %}virtualenv{% endif %}'
+    virtualenv_requirements:
+      - '{{django_app_path}}/requirements.txt'
+  pre_tasks:
+    - name: create django path
+      file:
+        path: '{{django_app_path}}'
+        state: directory
+    - name: copy test django project
+      synchronize: 
+        src: '{{playbook_dir}}/files/'
+        dest: '{{django_app_path}}/'
+        rsync_opts:
+          - '--exclude=*.pyc'
+          - '--exclude=db.sqlite3'
+  roles:
+    - role: cchurch.virtualenv
+    - role: cchurch.django
+  post_tasks:
+    - name: check that database file was created
+      stat:
+        path: '{{django_app_path}}/proj/db.sqlite3'
+      register: test_django_db_file
+      failed_when: not test_django_db_file.stat.exists or test_django_db_file.stat.pw_name != "normal"
+    - name: check that static root was created
+      stat:
+        path: '{{django_static_root}}'
+      register: test_django_static_dir
+      failed_when: not test_django_static_dir.stat.exists or test_django_static_dir.stat.pw_name != "normal"

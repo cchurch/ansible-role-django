@@ -1,0 +1,4 @@
+*.pyc
+proj/db.sqlite3
+proj/public
+proj/local_settings.py

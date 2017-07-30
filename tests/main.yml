@@ -1,0 +1,12 @@
+---
+
+- name: setup docker containers
+  include: setup.yml
+  tags: [always, setup]
+
+- name: run tests for role
+  include: test.yml
+
+- name: cleanup docker containers
+  include: cleanup.yml
+  tags: [always, cleanup]

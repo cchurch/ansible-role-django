@@ -1,5 +1,5 @@
 [![Build Status](http://img.shields.io/travis/cchurch/ansible-role-django.svg)](https://travis-ci.org/cchurch/ansible-role-django)
-[![Galaxy](http://img.shields.io/badge/galaxy-cchurch.django-blue.svg)](https://galaxy.ansible.com/list#/roles/4069)
+[![Galaxy](http://img.shields.io/badge/galaxy-cchurch.django-blue.svg)](https://galaxy.ansible.com/cchurch/django/)
 
 Django
 ======
@@ -13,7 +13,11 @@ The following variables may be defined to customize this role:
 
 - `django_app_path`: Directory containing Django project (required).
 - `django_user`: User to become for running Django commands (default is
-  `ansible_ssh_user`).
+  `ansible_user` or `ansible_ssh_user`).
+- `django_directories`: List of directories to be be created to support the
+  Django project (for log files, uploaded media, etc.); default is `[]`. Each
+  item in the list may be a single string specifying the directory name or a
+  hash containing `path`, `owner`, `group` and `mode` keys.
 - `django_settings_templates`: List of templates to install with custom Django
   settings, default is `[]`.  Each item in the list should be a hash containing
   `src` and `dest` keys, and may also specify `owner`, `group`, `mode` and
@@ -21,47 +25,68 @@ The following variables may be defined to customize this role:
   installing settings files; `dir_owner`, `dir_group` and `dir_mode` keys may
   be set to specify ownership and permission options for the parent
   directories that differ from the settings files.
-- `django_settings`: Python path to the Django settings module for running
-  Django commands, default is `omit`.
-- `django_virtualenv`: Directory containing virtualenv for running Django
-  commands, default is `omit`.
-- `django_pre_commands`: List of extra django commands to run before the main
-  commands, default is `[]`.
+- `django_settings`: Python dotted path to the Django settings module for
+  running Django commands (e.g. `proj.settings`); default is `omit`.
+- `django_virtualenv`: Directory containing virtualenv to be activated before
+  running Django commands; default is `omit`.
+- `django_pre_commands`: List of extra Django commands to run before the main
+  commands; default is `[]`.
 - `django_main_commands`: List of Django commands to run for normal project
-  updates, default is `["syncdb", "migrate", "collectstatic"]`.
+  updates; default is `["migrate", "collectstatic"]`.
 - `django_post_commands`: List of extra django commands to run after the main
-  commands, default is `[]`.
+  commands; default is `[]`.
 
 Each item in a list of commands above may be specified as a string with only
 the command name or as a hash with a `command` key and any other options
 supported by the `django_manage` module, e.g.:
 
-    - syncdb
+    - check
     - command: migrate
       skip: yes
+    - command: collectstatic
+      link: yes
     - my_custom_command --noinput
+      changed_when: '"created" in result.stdout'
+
+Each item may specify a `changed_when` conditional expression that will be
+evaluated to determine if the command made any changes; the `result` variable
+will be made available to the expression and contain the result from that
+particular `django_manage` module invocation.
+
+The following variable may be defined for the play or role invocation (but not
+as an inventory group or host variable):
+
+- `django_notify_on_updated`: Handler name to notify when any changes were made
+  while updating the Django project.
 
 Example Playbook
 ----------------
 
-The following example playbook configures and updates a Django project:
+The following example playbook configures and updates a Django project,
+notifying a custom handler when anything was changed:
 
     - hosts: all
+      vars:
+        django_app_path: ~/src
+        django_virtualenv: ~/env
+        django_settings_templates:
+          - src: local_settings.py.j2
+            dest: ~/src/myproj/local_settings.py
+        django_settings: myproj.settings
+        django_pre_commands:
+          - command: test
+            failfast: yes
+          - validate
+        django_post_commands:
+          - command: loaddata
+            fixtures: defaults.json
+        django_notify_on_updated: django project updated
       roles:
         - role: cchurch.django
-          django_app_path: ~/src
-          django_virtualenv: ~/env
-          django_settings_templates:
-            - src: ./templates/test.py.j2
-              dest: ~/src/myproj/settings/test.py
-          django_settings: myproj.settings.test
-          django_pre_commands:
-            - command: test
-              failfast: yes
-            - validate
-          django_post_commands:
-            - command: loaddata
-              fixtures: defaults.json
+      handlers:
+        - name: django project updated
+          debug:
+            msg: 'Django project in {{django_app_path}} was updated!'
 
 License
 -------

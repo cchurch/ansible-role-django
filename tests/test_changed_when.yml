@@ -1,0 +1,31 @@
+---
+
+- name: test use of custom lookup plugin to evaluate changed_when for each item
+  hosts: local
+  gather_facts: false
+  vars:
+    commands:
+      - cmd: uname -a
+        changed_when: 'false'
+      - cmd: uptime
+        changed_when: 'true'
+      - cmd: date
+        changed_when: '"4" in result.stdout'
+      - cmd: whoami
+  tasks:
+    - name: run some things
+      command: '{{item.cmd}}'
+      with_items: '{{commands}}'
+      register: command_results
+      changed_when: >
+        (item.changed_when is defined)|ternary(
+          lookup('_evaluate_conditionals', item.changed_when|default(false), result=command_results),
+          command_results.changed
+        )
+    - name: check some things
+      assert:
+        that:
+          - not command_results.results[0].changed
+          - command_results.results[1].changed
+          - ('4' in command_results.results[2].stdout)|ternary(command_results.results[2].changed, not command_results.results[2].changed)
+          - command_results.results[3].changed

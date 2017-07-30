@@ -5,7 +5,7 @@ galaxy_info:
   description: Configure and update a Django project.
   company: "Nine More Minutes, Inc."
   license: BSD
-  min_ansible_version: 1.8
+  min_ansible_version: 2.0
   platforms:
     - name: EL
       versions: ['all']
@@ -17,4 +17,5 @@ galaxy_info:
       versions: ['all']
   categories:
     - development
+allow_duplicates: true
 dependencies: []

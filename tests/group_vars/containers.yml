@@ -1,0 +1,17 @@
+---
+
+django_settings_templates:
+  - src: local_settings.py.j2
+    dest: '{{django_app_path}}/proj/local_settings.py'
+
+django_settings: proj.settings
+
+django_pre_commands:
+  - check
+
+django_post_commands:
+  - command: test
+    apps: proj.app
+    failfast: yes
+
+django_static_root: '{{django_app_path}}/proj/public/static'

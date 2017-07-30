@@ -1,0 +1,20 @@
+[local]
+localhost
+
+[containers]
+django_centos6 image="centos:6"
+django_centos7 image="centos:7"
+django_ubuntu14 image="ubuntu:trusty"
+django_ubuntu16 image="ubuntu:xenial"
+
+[containers:vars]
+ansible_connection=docker
+ansible_user=root
+
+[centos]
+django_centos6
+django_centos7
+
+[ubuntu]
+django_ubuntu14
+django_ubuntu16
