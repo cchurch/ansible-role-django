@@ -15,3 +15,10 @@ django_post_commands:
     failfast: yes
 
 django_static_root: '{{django_app_path}}/proj/public/static'
+
+django_project_fileglob:
+  - files/*.py
+  - files/*.txt
+  - files/proj/*.py
+  - files/proj/app/*.py
+  - files/proj/app/migrations/*.py

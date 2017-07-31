@@ -43,13 +43,27 @@
       file:
         path: '{{django_app_path}}'
         state: directory
-    - name: copy test django project
+    - name: synchronize test django project
       synchronize: 
         src: '{{playbook_dir}}/files/'
         dest: '{{django_app_path}}/'
         rsync_opts:
           - '--exclude=*.pyc'
           - '--exclude=db.sqlite3'
+      when: ansible_version.string|version_compare('2.3', '>=')
+    - name: create directories for test django project
+      file:
+        path: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")|dirname}}'
+        state: directory
+      with_fileglob: '{{django_project_fileglob}}'
+      when: ansible_version.string|version_compare('2.3', '<')
+    - name: copy files for test django project
+      copy:
+        src: '{{item}}'
+        dest: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")}}'
+        mode: '{{(item|basename == "manage.py")|ternary(0755,0644)}}'
+      with_fileglob: '{{django_project_fileglob}}'
+      when: ansible_version.string|version_compare('2.3', '<')
   roles:
     - role: cchurch.django
       django_notify_on_updated: django initial update
@@ -106,13 +120,31 @@
         state: directory
       become: true
       become_user: normal
-    - name: copy test django project
+    - name: synchronize test django project 
       synchronize: 
         src: '{{playbook_dir}}/files/'
         dest: '{{django_app_path}}/'
         rsync_opts:
           - '--exclude=*.pyc'
           - '--exclude=db.sqlite3'
+      when: ansible_version.string|version_compare('2.3', '>=')
+      become: true
+      become_user: normal
+    - name: create directories for test django project
+      file:
+        path: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")|dirname}}'
+        state: directory
+      with_fileglob: '{{django_project_fileglob}}'
+      when: ansible_version.string|version_compare('2.3', '<')
+      become: true
+      become_user: normal
+    - name: copy files for test django project
+      copy:
+        src: '{{item}}'
+        dest: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")}}'
+        mode: '{{(item|basename == "manage.py")|ternary(0755,0644)}}'
+      with_fileglob: '{{django_project_fileglob}}'
+      when: ansible_version.string|version_compare('2.3', '<')
       become: true
       become_user: normal
   roles:
@@ -149,13 +181,27 @@
       file:
         path: '{{django_app_path}}'
         state: directory
-    - name: copy test django project
+    - name: synchronize test django project
       synchronize: 
         src: '{{playbook_dir}}/files/'
         dest: '{{django_app_path}}/'
         rsync_opts:
           - '--exclude=*.pyc'
           - '--exclude=db.sqlite3'
+      when: ansible_version.string|version_compare('2.3', '>=')
+    - name: create directories for test django project
+      file:
+        path: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")|dirname}}'
+        state: directory
+      with_fileglob: '{{django_project_fileglob}}'
+      when: ansible_version.string|version_compare('2.3', '<')
+    - name: copy files for test django project
+      copy:
+        src: '{{item}}'
+        dest: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")}}'
+        mode: '{{(item|basename == "manage.py")|ternary(0755,0644)}}'
+      with_fileglob: '{{django_project_fileglob}}'
+      when: ansible_version.string|version_compare('2.3', '<')
   roles:
     - role: cchurch.virtualenv
     - role: cchurch.django
