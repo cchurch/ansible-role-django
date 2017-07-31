@@ -14,11 +14,11 @@
     - name: install ius repository
       yum:
         name: https://centos6.iuscommunity.org/ius-release.rpm
-      when: 'ansible_distribution_major_version == 6'
+      when: 'ansible_distribution_major_version == "6"'
     - name: install python 2.7 pip and virtualenv on centos6
       yum:
         name: '{{item}}'
-      when: 'ansible_distribution_major_version == 6'
+      when: 'ansible_distribution_major_version == "6"'
       with_items:
         - python27-pip
         - python27-virtualenv

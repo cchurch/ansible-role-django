@@ -4,7 +4,17 @@
 Django
 ======
 
-Configure and update a Django project.
+Configure and update a Django project. Requires Ansible 2.0 or later.
+
+Requirements
+------------
+
+When `become` is used (i.e. `django_user` does not equal `ansible_user` or
+`ansible_ssh_user`), the necessary OS package(s) to support `become_method`
+(e.g. `sudo`) must be installed before using this role.
+
+The OS package and Python package dependencies for the project must be installed
+prior to running this role.
 
 Role Variables
 --------------
@@ -58,6 +68,13 @@ as an inventory group or host variable):
 
 - `django_notify_on_updated`: Handler name to notify when any changes were made
   while updating the Django project.
+
+This role can run Django management commands as another user, specified by
+`django_user`, and will use the `become_method` specified for the
+host/play/task to switch to this user. When using Ansible 2.1 and later, you may
+need to define `allow_world_readable_tmpfiles` in your `ansible.cfg` (which
+still will generate a warning instead of an error) or use another approach to
+support one unprivileged user becoming another unprivileged user.
 
 Example Playbook
 ----------------
