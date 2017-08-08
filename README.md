@@ -30,8 +30,8 @@ The following variables may be defined to customize this role:
   hash containing `path`, `owner`, `group` and `mode` keys.
 - `django_settings_templates`: List of templates to install with custom Django
   settings, default is `[]`.  Each item in the list should be a hash containing
-  `src` and `dest` keys, and may also specify `owner`, `group`, `mode` and
-  `backup` parameters. Parent directories will be created if needed before
+  `src` and `dest` keys, and may also specify `owner`, `group`, `mode`, `backup`
+  and `force` parameters. Parent directories will be created if needed before
   installing settings files; `dir_owner`, `dir_group` and `dir_mode` keys may
   be set to specify ownership and permission options for the parent
   directories that differ from the settings files.

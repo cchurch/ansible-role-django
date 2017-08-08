@@ -28,6 +28,7 @@
     group: '{{item.group|default(omit,true)}}'
     mode: '{{item.mode|default(omit,true)}}'
     backup: '{{item.backup|default(omit)}}'
+    force: '{{item.force|default(omit)}}'
   with_items: '{{django_settings_templates}}'
   register: _django_settings_templates_results
 
