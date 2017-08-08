@@ -24,12 +24,6 @@
 
 - name: notify handler if anything changed
   set_fact:
-    _django_updated: >
-      {{(_django_directories_results.changed or
-      _django_settings_directories_results.changed or
-      _django_settings_templates_results.changed or
-      _django_pre_commands_results.changed or
-      _django_main_commands_results.changed or
-      _django_post_commands_results.changed)}}
+    _django_updated: '{{(_django_directories_results.changed or _django_settings_directories_results.changed or _django_settings_templates_results.changed or _django_pre_commands_results.changed or _django_main_commands_results.changed or _django_post_commands_results.changed)|bool}}'
   changed_when: _django_updated
   notify: '{{django_notify_on_updated|default("django default handler",true)}}'

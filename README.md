@@ -55,7 +55,7 @@ supported by the `django_manage` module, e.g.:
       skip: yes
     - command: collectstatic
       link: yes
-    - my_custom_command --noinput
+    - command: my_custom_command --noinput
       changed_when: '"created" in result.stdout'
 
 Each item may specify a `changed_when` conditional expression that will be
