@@ -51,7 +51,7 @@
   # Override collectstatic changed_when on Ansible 2.1.
   changed_when: >
     (item.command|default(item) == "collectstatic")|ternary(
-      "0 static files" not in _django_pre_commands_results.out,
+      "0 static files" not in _django_pre_commands_results.out|default(""),
       (item.changed_when is defined)|ternary(
         lookup('_evaluate_conditionals', item.changed_when|default(false), result=_django_pre_commands_results),
         _django_pre_commands_results.changed|default(false),
@@ -77,7 +77,7 @@
   # Override collectstatic changed_when on Ansible 2.1.
   changed_when: >
     (item.command|default(item) == "collectstatic")|ternary(
-      "0 static files" not in _django_main_commands_results.out,
+      "0 static files" not in _django_main_commands_results.out|default(""),
       (item.changed_when is defined)|ternary(
         lookup('_evaluate_conditionals', item.changed_when|default(false), result=_django_main_commands_results),
         _django_main_commands_results.changed|default(false),
@@ -103,7 +103,7 @@
   # Override collectstatic changed_when on Ansible 2.1.
   changed_when: >
     (item.command|default(item) == "collectstatic")|ternary(
-      "0 static files" not in _django_post_commands_results.out,
+      "0 static files" not in _django_post_commands_results.out|default(""),
       (item.changed_when is defined)|ternary(
         lookup('_evaluate_conditionals', item.changed_when|default(false), result=_django_post_commands_results),
         _django_post_commands_results.changed|default(false),
