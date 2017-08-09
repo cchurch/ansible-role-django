@@ -8,8 +8,8 @@
 - name: initialize default variables
   set_fact:
     _django_app_path: '{{django_app_path|mandatory}}'
-    _django_user: '{{django_user|default(ansible_user,true)|default(ansible_ssh_user,true)}}'
-    _django_becoming: '{{((_django_whoami_result.stdout != ansible_user and _django_whoami_result.stdout != ansible_ssh_user) or _django_whoami_result.stdout == "root")|bool}}'
+    _django_user: '{{django_user|default(ansible_user|default(""),true)|default(ansible_ssh_user|default(""),true)}}'
+    _django_becoming: '{{((_django_whoami_result.stdout != ansible_user|default("") and _django_whoami_result.stdout != ansible_ssh_user|default("")) or _django_whoami_result.stdout == "root")|bool}}'
     _django_actual_user: '{{_django_whoami_result.stdout}}'
 
 - name: run update tasks with become
