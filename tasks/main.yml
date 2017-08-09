@@ -18,12 +18,20 @@
   become: yes
   become_user: '{{_django_user}}'
 
+- name: check if anything changed after running with become
+  set_fact:
+    _django_become_updated: '{{(_django_directories_results.changed or _django_settings_directories_results.changed or _django_settings_templates_results.changed or _django_pre_commands_results.changed or _django_main_commands_results.changed or _django_post_commands_results.changed)|bool}}'
+
 - name: run update tasks without become
   include: update.yml
   when: _django_user == _django_actual_user
 
+- name: check if anything changed after running without become
+  set_fact:
+    _django_no_become_updated: '{{(_django_directories_results.changed or _django_settings_directories_results.changed or _django_settings_templates_results.changed or _django_pre_commands_results.changed or _django_main_commands_results.changed or _django_post_commands_results.changed)|bool}}'
+
 - name: notify handler if anything changed
   set_fact:
-    _django_updated: '{{(_django_directories_results.changed or _django_settings_directories_results.changed or _django_settings_templates_results.changed or _django_pre_commands_results.changed or _django_main_commands_results.changed or _django_post_commands_results.changed)|bool}}'
+    _django_updated: '{{(_django_become_updated or _django_no_become_updated)|bool}}'
   changed_when: _django_updated
   notify: '{{django_notify_on_updated|default("django default handler",true)}}'
