@@ -1,7 +1,7 @@
 ---
 
 - name: test use of custom lookup plugin to evaluate changed_when for each item
-  hosts: local
+  hosts: all
   gather_facts: false
   vars:
     commands:
@@ -19,7 +19,7 @@
       register: command_results
       changed_when: >
         (item.changed_when is defined)|ternary(
-          lookup('_evaluate_conditionals', item.changed_when|default(false), result=command_results),
+          lookup('_django_eval', item.changed_when|default(false), result=command_results),
           command_results.changed
         )
     - name: check some things
