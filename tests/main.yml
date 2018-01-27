@@ -4,6 +4,9 @@
   include: setup.yml
   tags: [always, setup]
 
+- name: test custom lookup plugin
+  include: test_lookup.yml
+
 - name: run tests for role
   include: test.yml
 

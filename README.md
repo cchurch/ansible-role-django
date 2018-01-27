@@ -113,4 +113,4 @@ BSD
 Author Information
 ------------------
 
-Chris Church <chris@ninemoreminutes.com>
+Chris Church ([cchurch](https://github.com/cchurch))

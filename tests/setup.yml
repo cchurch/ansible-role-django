@@ -1,24 +1,53 @@
 ---
 
 - name: launch docker containers
-  hosts: local
+  hosts: containers
   gather_facts: false
   roles:
     - role: chrismeyersfsu.provision_docker
+      provision_docker_inventory_group:
+        - '{{inventory_hostname}}'
+      delegate_to: localhost
 
-- name: install epel for centos containers
+- name: install epel on centos containers (based on geerlingguy.repo-epel)
   hosts: containers:&centos
-  roles:
-    - role: geerlingguy.repo-epel
-  post_tasks:
+  vars:
+    epel_repo_url: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ansible_distribution_major_version}}.noarch.rpm'
+    epel_repo_gpg_key: '/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ansible_distribution_major_version}}'
+    epel_repo_path: '/etc/yum.repos.d/epel.repo'
+  tasks:
+    - name: check if epel repo is configured
+      stat:
+        path: '{{epel_repo_path}}'
+      register: epel_repo_path_result
+    - name: install epel repo
+      yum:
+        name: '{{epel_repo_url}}'
+        state: present
+      register: epel_repo_result
+      until: '"failed" not in epel_repo_result'
+      retries: 5
+      delay: 10
+      when: not epel_repo_path_result.stat.exists
+    - name: import epel gpg key when no keys exist (workaround rpm_key bug)
+      shell: rpm -q gpg-pubkey || rpm --import {{epel_repo_gpg_key|quote}}
+      when: not epel_repo_path_result.stat.exists
+    - name: import epel gpg key
+      rpm_key:
+        key: '{{epel_repo_gpg_key}}'
+        state: present
+      when: not epel_repo_path_result.stat.exists
+
+- name: install python27 for centos6 container
+  hosts: containers:&centos6
+  gather_facts: false
+  tasks:
     - name: install ius repository
       yum:
         name: https://centos6.iuscommunity.org/ius-release.rpm
-      when: 'ansible_distribution_major_version == "6"'
-    - name: install python 2.7 pip and virtualenv on centos6
+    - name: install python 2.7 pip and virtualenv
       yum:
         name: '{{item}}'
-      when: 'ansible_distribution_major_version == "6"'
       with_items:
         - python27-pip
         - python27-virtualenv
@@ -30,13 +59,12 @@
     - name: check for and install python
       raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
 
-- name: configure sudo, rsync and python on containers
+- name: install and configure sudo, rsync, pip and virtualenv on containers
   hosts: containers
   tasks:
-    - name: install sudo and rsync
+    - name: install sudo, rsync, pip, virtualenv
       package:
         name: '{{item}}'
-        state: present
       with_items:
         - sudo
         - rsync
@@ -44,7 +72,7 @@
         - python-virtualenv
     - name: enable sudo with no password
       copy:
-        content: '%{% if ansible_os_family == "RedHat" %}wheel{% else %}sudo{% endif %} ALL=(ALL) NOPASSWD: ALL'
+        content: '%{{(ansible_os_family == "Debian")|ternary("sudo","wheel")}} ALL=(ALL) NOPASSWD: ALL'
         dest: /etc/sudoers.d/sudo_nopasswd
         mode: 0440
         owner: root

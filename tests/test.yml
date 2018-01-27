@@ -27,7 +27,7 @@
         password: '$6$8yuM3YVsSYTjtPr$b742a/sSdpKpyuC9J7L2fHRrV1pUtHeJuUj6KrjQ7UsHRrT8ffvqnoUutJLVqIArHnm3/0GtF5DH5hnLn8rJo1'
     - name: install global test project requirements
       pip:
-        name: 'Django==1.11.3'
+        name: 'Django==1.11.9'
         executable: '{% if ansible_os_family == "RedHat" %}pip2.7{% else %}pip{% endif %}'
 
 - name: test configuring django project as admin user

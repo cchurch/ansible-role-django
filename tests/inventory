@@ -1,6 +1,10 @@
 [local]
 localhost
 
+[local:vars]
+ansible_connection=local
+ansible_python_interpreter=/usr/bin/env python
+
 [containers]
 django_centos6 image="centos:6"
 django_centos7 image="centos:7"
@@ -11,10 +15,22 @@ django_ubuntu16 image="ubuntu:xenial"
 ansible_connection=docker
 ansible_user=root
 
-[centos]
+[centos:children]
+centos6
+centos7
+
+[centos6]
 django_centos6
+
+[centos7]
 django_centos7
 
-[ubuntu]
+[ubuntu:children]
+ubuntu14
+ubuntu16
+
+[ubuntu14]
 django_ubuntu14
+
+[ubuntu16]
 django_ubuntu16
