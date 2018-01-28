@@ -29,6 +29,11 @@
       pip:
         name: 'Django==1.11.9'
         executable: '{% if ansible_os_family == "RedHat" %}pip2.7{% else %}pip{% endif %}'
+    - name: compress test django project files
+      command: >
+        tar -czvf {{playbook_dir}}/test_project.tgz --exclude *.pyc --exclude db.sqlite3 -C {{playbook_dir}}/files .
+      delegate_to: localhost
+      when: ansible_version.string|version_compare('2.3', '<')
 
 - name: test configuring django project as admin user
   hosts: containers
@@ -51,18 +56,11 @@
           - '--exclude=*.pyc'
           - '--exclude=db.sqlite3'
       when: ansible_version.string|version_compare('2.3', '>=')
-    - name: create directories for test django project
-      file:
-        path: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")|dirname}}'
-        state: directory
-      with_fileglob: '{{django_project_fileglob}}'
-      when: ansible_version.string|version_compare('2.3', '<')
-    - name: copy files for test django project
-      copy:
-        src: '{{item}}'
-        dest: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")}}'
-        mode: '{{(item|basename == "manage.py")|ternary(0755,0644)}}'
-      with_fileglob: '{{django_project_fileglob}}'
+    - name: unpack django test project on remote
+      unarchive:
+        src: '{{playbook_dir}}/test_project.tgz'
+        dest: '{{django_app_path}}'
+        copy: true
       when: ansible_version.string|version_compare('2.3', '<')
   roles:
     - role: cchurch.django
@@ -130,20 +128,11 @@
       when: ansible_version.string|version_compare('2.3', '>=')
       become: true
       become_user: normal
-    - name: create directories for test django project
-      file:
-        path: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")|dirname}}'
-        state: directory
-      with_fileglob: '{{django_project_fileglob}}'
-      when: ansible_version.string|version_compare('2.3', '<')
-      become: true
-      become_user: normal
-    - name: copy files for test django project
-      copy:
-        src: '{{item}}'
-        dest: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")}}'
-        mode: '{{(item|basename == "manage.py")|ternary(0755,0644)}}'
-      with_fileglob: '{{django_project_fileglob}}'
+    - name: unpack django test project on remote
+      unarchive:
+        src: '{{playbook_dir}}/test_project.tgz'
+        dest: '{{django_app_path}}'
+        copy: true
       when: ansible_version.string|version_compare('2.3', '<')
       become: true
       become_user: normal
@@ -189,18 +178,11 @@
           - '--exclude=*.pyc'
           - '--exclude=db.sqlite3'
       when: ansible_version.string|version_compare('2.3', '>=')
-    - name: create directories for test django project
-      file:
-        path: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")|dirname}}'
-        state: directory
-      with_fileglob: '{{django_project_fileglob}}'
-      when: ansible_version.string|version_compare('2.3', '<')
-    - name: copy files for test django project
-      copy:
-        src: '{{item}}'
-        dest: '{{django_app_path}}/{{item|relpath(playbook_dir + "/files")}}'
-        mode: '{{(item|basename == "manage.py")|ternary(0755,0644)}}'
-      with_fileglob: '{{django_project_fileglob}}'
+    - name: unpack django test project on remote
+      unarchive:
+        src: '{{playbook_dir}}/test_project.tgz'
+        dest: '{{django_app_path}}'
+        copy: true
       when: ansible_version.string|version_compare('2.3', '<')
   roles:
     - role: cchurch.virtualenv
