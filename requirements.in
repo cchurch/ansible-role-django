@@ -1,5 +1,5 @@
 ansible
 bumpversion
-django~=1.11.0
+django~=1.11.23
 docker-py
 tox

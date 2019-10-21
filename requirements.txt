@@ -6,19 +6,16 @@
 #
 ansible==2.4.2.0
 asn1crypto==0.24.0        # via cryptography
-backports.ssl-match-hostname==3.5.0.1  # via docker-py
 bcrypt==3.1.4             # via paramiko
 bumpversion==0.5.3
 certifi==2018.1.18        # via requests
 cffi==1.11.4              # via bcrypt, cryptography, pynacl
 chardet==3.0.4            # via requests
 cryptography==2.1.4       # via ansible, paramiko
-django==1.11.9
+django==1.11.23
 docker-py==1.10.6
 docker-pycreds==0.2.1     # via docker-py
-enum34==1.1.6             # via cryptography
 idna==2.6                 # via cryptography, requests
-ipaddress==1.0.19         # via cryptography, docker-py
 jinja2==2.10              # via ansible
 markupsafe==1.0           # via jinja2
 paramiko==2.4.0           # via ansible
