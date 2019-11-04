@@ -4,7 +4,7 @@
 Django
 ======
 
-Configure and update a Django project. Requires Ansible 2.1 or later.
+Configure and update a Django project. Requires Ansible 2.4 or later.
 
 Requirements
 ------------
@@ -13,8 +13,15 @@ When `become` is used (i.e. `django_user` does not equal `ansible_user` or
 `ansible_ssh_user`), the necessary OS package(s) to support `become_method`
 (e.g. `sudo`) must be installed before using this role.
 
-The OS package and Python package dependencies for the project must be installed
-prior to running this role.
+The Django project must be made available on the target host prior to running
+this role (via SCM checkout, rsync, etc.). The
+[cchurch.scm](https://galaxy.ansible.com/cchurch/scm) role may
+be useful to checkout a Django project from git/hg/svn.
+
+The OS and Python package dependencies for the project, include Django itself,
+must be installed prior to running this role. The
+[cchurch.virtualenv](https://galaxy.ansible.com/cchurch/virtualenv) role may
+be useful to install packages and create a virtualenv for running Django.
 
 Role Variables
 --------------
@@ -48,7 +55,8 @@ The following variables may be defined to customize this role:
 
 Each item in a list of commands above may be specified as a string with only
 the command name or as a hash with a `command` key and any other options
-supported by the `django_manage` module, e.g.:
+supported by the [`django_manage`](https://docs.ansible.com/ansible/latest/modules/django_manage_module.html)
+module, e.g.:
 
     - check
     - command: migrate
@@ -63,18 +71,20 @@ evaluated to determine if the command made any changes; the `result` variable
 will be made available to the expression and contain the result from that
 particular `django_manage` module invocation.
 
-The following variable may be defined for the play or role invocation (but not
-as an inventory group or host variable):
+The following variable may be defined for the play or role invocation (but will
+not work if defined as an inventory group or host variable):
 
 - `django_notify_on_updated`: Handler name to notify when any changes were made
-  while updating the Django project.
+  while updating the Django project. The default is `"django updated"`; it is
+  generally recommended for custom handlers to listen for `"django updated"`
+  instead of changing the notification name.
 
 This role can run Django management commands as another user, specified by
 `django_user`, and will use the `become_method` specified for the
-host/play/task to switch to this user. When using Ansible 2.1 and later, you may
-need to define `allow_world_readable_tmpfiles` in your `ansible.cfg` (which
-still will generate a warning instead of an error) or use another approach to
-support one unprivileged user becoming another unprivileged user.
+host/play/task to switch to this user. You may need to define
+`allow_world_readable_tmpfiles` in your `ansible.cfg` (which still will
+generate a warning instead of an error) or use another approach to support one
+unprivileged user becoming another unprivileged user.
 
 Example Playbook
 ----------------
@@ -97,13 +107,13 @@ notifying a custom handler when anything was changed:
         django_post_commands:
           - command: loaddata
             fixtures: defaults.json
-        django_notify_on_updated: django project updated
       roles:
         - role: cchurch.django
       handlers:
         - name: django project updated
           debug:
-            msg: 'Django project in {{django_app_path}} was updated!'
+            msg: "Django project in {{ django_app_path }} was updated!"
+          listen: django updated
 
 License
 -------
