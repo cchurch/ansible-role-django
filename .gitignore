@@ -3,8 +3,8 @@ test/tmp
 test/proj/this
 *.retry
 *.pyc
+__pycache__
 .tox
 tests/test_project.tgz
 tests/roles/cchurch.virtualenv
 tests/roles/chrismeyersfsu.provision_docker
-tests/roles/geerlingguy.repo-epel

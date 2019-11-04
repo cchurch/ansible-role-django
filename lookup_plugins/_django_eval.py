@@ -15,4 +15,4 @@ class LookupModule(LookupBase):
         vars_copy.update(kwargs)
         cond = Conditional(loader=self._loader)
         cond.when = terms
-        return cond.evaluate_conditional(self._templar, vars_copy)
+        return [cond.evaluate_conditional(self._templar, vars_copy)]

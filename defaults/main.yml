@@ -4,9 +4,9 @@ django_directories: []
 
 django_settings_templates: []
 
-django_settings: ''
+django_settings: ""
 
-django_virtualenv: ''
+django_virtualenv: ""
 
 django_pre_commands: []
 

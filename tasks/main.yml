@@ -5,33 +5,24 @@
   register: _django_whoami_result
   changed_when: false
 
-- name: initialize default variables
+- name: determine current user vs. actual user
   set_fact:
-    _django_app_path: '{{django_app_path|mandatory}}'
-    _django_user: '{{django_user|default(ansible_user|default(""),true)|default(ansible_ssh_user|default(""),true)}}'
-    _django_becoming: '{{((_django_whoami_result.stdout != ansible_user|default("") and _django_whoami_result.stdout != ansible_ssh_user|default("")) or _django_whoami_result.stdout == "root")|bool}}'
-    _django_actual_user: '{{_django_whoami_result.stdout}}'
+    _django_current_user: "{{ ansible_user | default(ansible_ssh_user, true) | default(ansible_user_id, true) | default(lookup('env', 'USER')) }}"
+    _django_actual_user: "{{ _django_whoami_result.stdout }}"
+
+- name: initialize default role variables
+  set_fact:
+    _django_app_path: "{{ django_app_path | mandatory }}"
+    _django_becoming: "{{ (_django_actual_user != _django_current_user or _django_actual_user == 'root') | bool }}"
+    _django_user: "{{ django_user | default(_django_current_user, true) }}"
 
 - name: run update tasks with become
-  include: update.yml
+  import_tasks: update.yml
   when: _django_user != _django_actual_user
-  become: yes
-  become_user: '{{_django_user}}'
-
-- name: check if anything changed after running with become
-  set_fact:
-    _django_become_updated: '{{(_django_directories_results.changed or _django_settings_directories_results.changed or _django_settings_templates_results.changed or _django_pre_commands_results.changed or _django_main_commands_results.changed or _django_post_commands_results.changed)|bool}}'
+  become: true
+  become_user: "{{ _django_user }}"
 
 - name: run update tasks without become
-  include: update.yml
+  import_tasks: update.yml
   when: _django_user == _django_actual_user
-
-- name: check if anything changed after running without become
-  set_fact:
-    _django_no_become_updated: '{{(_django_directories_results.changed or _django_settings_directories_results.changed or _django_settings_templates_results.changed or _django_pre_commands_results.changed or _django_main_commands_results.changed or _django_post_commands_results.changed)|bool}}'
-
-- name: notify handler if anything changed
-  set_fact:
-    _django_updated: '{{(_django_become_updated or _django_no_become_updated)|bool}}'
-  changed_when: _django_updated
-  notify: '{{django_notify_on_updated|default("django default handler",true)}}'
+  become: false

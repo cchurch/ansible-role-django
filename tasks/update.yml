@@ -2,110 +2,110 @@
 
 - name: create directories needed for django
   file:
-    path: '{{item.path|default(item)|mandatory}}'
-    owner: '{{item.owner|default(_django_user,true)|default(omit,true)}}'
-    group: '{{item.group|default(omit,true)}}'
-    mode: '{{item.mode|default(omit,true)}}'
+    path: "{{ item.path | default(item) | mandatory }}"
+    owner: "{{ item.owner | default(_django_user, true) | default(omit, true) }}"
+    group: "{{ item.group | default(omit, true) }}"
+    mode: "{{ item.mode | default(omit, true) }}"
     state: directory
-  with_items: '{{django_directories}}'
+  with_items: "{{ django_directories }}"
   register: _django_directories_results
 
 - name: create directories needed for settings files
   file:
-    path: '{{item.dest|mandatory|dirname}}'
-    owner: '{{item.dir_owner|default(item.owner,true)|default(_django_user,true)|default(omit,true)}}'
-    group: '{{item.dir_group|default(item.group,true)|default(omit,true)}}'
-    mode: '{{item.dir_mode|default(item.mode,true)|default(omit,true)}}'
+    path: "{{ item.dest | mandatory | dirname }}"
+    owner: "{{ item.dir_owner | default(item.owner, true) | default(_django_user, true) | default(omit, true) }}"
+    group: "{{ item.dir_group | default(item.group, true) | default(omit, true) }}"
+    mode: "{{ item.dir_mode | default(item.mode, true) | default(omit, true) }}"
     state: directory
-  with_items: '{{django_settings_templates}}'
+  with_items: "{{ django_settings_templates }}"
   register: _django_settings_directories_results
 
 - name: install settings files from templates
   template:
-    src: '{{item.src|mandatory}}'
-    dest: '{{item.dest|mandatory}}'
-    owner: '{{item.owner|default(_django_user,true)}}'
-    group: '{{item.group|default(omit,true)}}'
-    mode: '{{item.mode|default(omit,true)}}'
-    backup: '{{item.backup|default(omit)}}'
-    force: '{{item.force|default(omit)}}'
-  with_items: '{{django_settings_templates}}'
+    src: "{{ item.src | mandatory }}"
+    dest: "{{ item.dest | mandatory }}"
+    owner: "{{ item.owner | default(_django_user, true) }}"
+    group: "{{ item.group | default(omit, true) }}"
+    mode: "{{ item.mode | default(omit, true) }}"
+    backup: "{{ item.backup | default(omit) }}"
+    force: "{{ item.force | default(omit) }}"
+  with_items: "{{ django_settings_templates }}"
   register: _django_settings_templates_results
 
 - name: run django pre commands
   django_manage:
-    app_path: '{{_django_app_path}}'
-    settings: '{{django_settings|default(omit,true)}}'
-    virtualenv: '{{django_virtualenv|default(omit,true)}}'
-    command: '{{item.command|default(item)}}'
-    apps: '{{item.apps|default(omit)}}'
-    cache_table: '{{item.cache_table|default(omit)}}'
-    database: '{{item.database|default(omit)}}'
-    failfast: '{{item.failfast|default(omit)}}'
-    fixtures: '{{item.fixtures|default(omit)}}'
-    link: '{{item.link|default(omit)}}'
-    merge: '{{item.merge|default(omit)}}'
-    skip: '{{item.skip|default(omit)}}'
-  with_items: '{{django_pre_commands}}'
+    app_path: "{{ _django_app_path }}"
+    settings: "{{ django_settings | default(omit, true) }}"
+    virtualenv: "{{ django_virtualenv | default(omit, true) }}"
+    command: "{{ item.command | default(item) }}"
+    apps: "{{ item.apps | default(omit) }}"
+    cache_table: "{{ item.cache_table | default(omit) }}"
+    database: "{{ item.database | default(omit) }}"
+    failfast: "{{ item.failfast | default(omit) }}"
+    fixtures: "{{ item.fixtures | default(omit) }}"
+    link: "{{ item.link | default(omit) }}"
+    merge: "{{ item.merge | default(omit) }}"
+    skip: "{{ item.skip | default(omit) }}"
+  with_items: "{{ django_pre_commands }}"
   register: _django_pre_commands_results
-  # Override collectstatic changed_when on Ansible 2.1.
-  changed_when: >
-    (item.command|default(item) == "collectstatic")|ternary(
-      "0 static files" not in _django_pre_commands_results.out|default(""),
-      (item.changed_when is defined)|ternary(
-        lookup('_django_eval', item.changed_when|default(false), result=_django_pre_commands_results),
-        _django_pre_commands_results.changed|default(false),
-      )
+  changed_when: >-
+    (item.changed_when is defined) | ternary(
+      lookup('_django_eval', item.changed_when | default(false), result=_django_pre_commands_results),
+      _django_pre_commands_results.changed | default(false),
     )
 
 - name: run main django commands
   django_manage:
-    app_path: '{{_django_app_path}}'
-    settings: '{{django_settings|default(omit,true)}}'
-    virtualenv: '{{django_virtualenv|default(omit,true)}}'
-    command: '{{item.command|default(item)}}'
-    apps: '{{item.apps|default(omit)}}'
-    cache_table: '{{item.cache_table|default(omit)}}'
-    database: '{{item.database|default(omit)}}'
-    failfast: '{{item.failfast|default(omit)}}'
-    fixtures: '{{item.fixtures|default(omit)}}'
-    link: '{{item.link|default(omit)}}'
-    merge: '{{item.merge|default(omit)}}'
-    skip: '{{item.skip|default(omit)}}'
-  with_items: '{{django_main_commands}}'
+    app_path: "{{ _django_app_path }}"
+    settings: "{{ django_settings | default(omit, true) }}"
+    virtualenv: "{{ django_virtualenv | default(omit, true) }}"
+    command: "{{ item.command | default(item) }}"
+    apps: "{{ item.apps | default(omit) }}"
+    cache_table: "{{ item.cache_table | default(omit) }}"
+    database: "{{ item.database | default(omit) }}"
+    failfast: "{{ item.failfast | default(omit) }}"
+    fixtures: "{{ item.fixtures | default(omit) }}"
+    link: "{{ item.link | default(omit) }}"
+    merge: "{{ item.merge | default(omit) }}"
+    skip: "{{ item.skip | default(omit) }}"
+  with_items: "{{ django_main_commands }}"
   register: _django_main_commands_results
-  # Override collectstatic changed_when on Ansible 2.1.
-  changed_when: >
-    (item.command|default(item) == "collectstatic")|ternary(
-      "0 static files" not in _django_main_commands_results.out|default(""),
-      (item.changed_when is defined)|ternary(
-        lookup('_django_eval', item.changed_when|default(false), result=_django_main_commands_results),
-        _django_main_commands_results.changed|default(false),
-      )
+  changed_when: >-
+    (item.changed_when is defined) | ternary(
+      lookup('_django_eval', item.changed_when | default(false), result=_django_main_commands_results),
+      _django_main_commands_results.changed | default(false),
     )
 
 - name: run django post commands
   django_manage:
-    app_path: '{{_django_app_path}}'
-    settings: '{{django_settings|default(omit,true)}}'
-    virtualenv: '{{django_virtualenv|default(omit,true)}}'
-    command: '{{item.command|default(item)}}'
-    apps: '{{item.apps|default(omit)}}'
-    cache_table: '{{item.cache_table|default(omit)}}'
-    database: '{{item.database|default(omit)}}'
-    failfast: '{{item.failfast|default(omit)}}'
-    fixtures: '{{item.fixtures|default(omit)}}'
-    link: '{{item.link|default(omit)}}'
-    merge: '{{item.merge|default(omit)}}'
-    skip: '{{item.skip|default(omit)}}'
-  with_items: '{{django_post_commands}}'
+    app_path: "{{ _django_app_path }}"
+    settings: "{{ django_settings | default(omit, true) }}"
+    virtualenv: "{{ django_virtualenv | default(omit, true) }}"
+    command: "{{ item.command | default(item) }}"
+    apps: "{{ item.apps | default(omit) }}"
+    cache_table: "{{ item.cache_table | default(omit) }}"
+    database: "{{ item.database | default(omit) }}"
+    failfast: "{{ item.failfast | default(omit) }}"
+    fixtures: "{{ item.fixtures | default(omit) }}"
+    link: "{{ item.link | default(omit) }}"
+    merge: "{{ item.merge | default(omit) }}"
+    skip: "{{ item.skip | default(omit) }}"
+  with_items: "{{ django_post_commands }}"
   register: _django_post_commands_results
-  # Override collectstatic changed_when on Ansible 2.1.
-  changed_when: >
-    (item.command|default(item) == "collectstatic")|ternary(
-      "0 static files" not in _django_post_commands_results.out|default(""),
-      (item.changed_when is defined)|ternary(
-        lookup('_django_eval', item.changed_when|default(false), result=_django_post_commands_results),
-        _django_post_commands_results.changed|default(false),
-      )
+  changed_when: >-
+    (item.changed_when is defined) | ternary(
+      lookup('_django_eval', item.changed_when | default(false), result=_django_post_commands_results),
+      _django_post_commands_results.changed | default(false),
     )
+
+- name: check if anything changed after running updates and notify handlers
+  set_fact:
+    _django_updated: >-
+      {{ (_django_directories_results.changed or
+      _django_settings_directories_results.changed or
+      _django_settings_templates_results.changed or
+      _django_pre_commands_results.changed or
+      _django_main_commands_results.changed or
+      _django_post_commands_results.changed) | bool }}
+  changed_when: _django_updated
+  notify: "{{ django_notify_on_updated | default('django updated', true) }}"
