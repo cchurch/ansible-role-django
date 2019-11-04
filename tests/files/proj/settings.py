@@ -120,9 +120,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'public', 'static')
 
 # Include customized local settings.
 try:
-    execfile(os.path.join(BASE_DIR, 'local_settings.py'))
+    if 'execfile' in __builtins__:
+        execfile(os.path.join(BASE_DIR, 'local_settings.py'))
+    else:
+        exec(open(os.path.join(BASE_DIR, 'local_settings.py')).read())
 except IOError:
     pass

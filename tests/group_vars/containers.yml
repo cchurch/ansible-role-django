@@ -1,8 +1,11 @@
 ---
 
 django_settings_templates:
+  - src: manage.py.j2
+    dest: "{{ django_app_path }}/manage.py"
+    mode: "a+x"
   - src: local_settings.py.j2
-    dest: '{{django_app_path}}/proj/local_settings.py'
+    dest: "{{ django_app_path }}/proj/local_settings.py"
 
 django_settings: proj.settings
 
@@ -14,4 +17,13 @@ django_post_commands:
     apps: proj.app
     failfast: yes
 
-django_static_root: '{{django_app_path}}/proj/public/static'
+django_static_root: "{{ django_app_path }}/proj/public/static"
+
+test_python2_version: "2.7"
+test_python3_version: "3.6"
+
+test_python2_executable: "python{{ test_python2_version }}"
+test_python3_executable: "python{{ test_python3_version }}"
+
+test_django1_version: "1.11.25"
+test_django2_version: "2.2.6"

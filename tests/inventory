@@ -8,8 +8,10 @@ ansible_python_interpreter=/usr/bin/env python
 [containers]
 django_centos6 image="centos:6"
 django_centos7 image="centos:7"
+django_centos8 image="centos:8"
 django_ubuntu14 image="ubuntu:trusty"
 django_ubuntu16 image="ubuntu:xenial"
+django_ubuntu18 image="ubuntu:bionic"
 
 [containers:vars]
 ansible_connection=docker
@@ -18,6 +20,7 @@ ansible_user=root
 [centos:children]
 centos6
 centos7
+centos8
 
 [centos6]
 django_centos6
@@ -25,12 +28,22 @@ django_centos6
 [centos7]
 django_centos7
 
+[centos8]
+django_centos8
+
+[centos8:vars]
+ansible_python_interpreter=/usr/libexec/platform-python
+
 [ubuntu:children]
 ubuntu14
 ubuntu16
+ubuntu18
 
 [ubuntu14]
 django_ubuntu14
 
 [ubuntu16]
 django_ubuntu16
+
+[ubuntu18]
+django_ubuntu18

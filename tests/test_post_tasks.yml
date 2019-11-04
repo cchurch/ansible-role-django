@@ -1,0 +1,17 @@
+---
+
+- name: check that database file was created
+  stat:
+    path: "{{ django_app_path }}/proj/db.sqlite3"
+  register: _test_django_db_file
+  failed_when: >-
+    not _test_django_db_file.stat.exists or
+    _test_django_db_file.stat.pw_name != (django_user | default(ansible_user))
+
+- name: check that static root was created
+  stat:
+    path: "{{ django_static_root }}"
+  register: _test_django_static_dir
+  failed_when: >-
+    not _test_django_static_dir.stat.exists or
+    _test_django_static_dir.stat.pw_name != (django_user | default(ansible_user))

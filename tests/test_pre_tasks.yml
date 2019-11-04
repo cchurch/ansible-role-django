@@ -1,0 +1,17 @@
+---
+
+- name: create django path
+  file:
+    path: "{{ django_app_path }}'"
+    state: directory
+
+- name: synchronize test django project
+  synchronize:
+    src: "{{ playbook_dir }}/files/"
+    dest: "{{ django_app_path }}/"
+    rsync_opts:
+      - "--exclude=*.pyc"
+      - "--exclude=__pycache__"
+      - "--exclude=db.sqlite3"
+      - "--exclude=manage.py"
+      - "--exclude=public"
