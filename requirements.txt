@@ -8,10 +8,10 @@ ansible-lint==4.1.0
 ansible==2.9.0
 bumpversion==0.5.3
 certifi==2019.9.11        # via requests
-cffi==1.13.1              # via cryptography
+cffi==1.13.2              # via cryptography
 chardet==3.0.4            # via requests
 cryptography==2.8         # via ansible
-django==2.2.6
+django==2.2.7
 docker==4.1.0
 filelock==3.0.12          # via tox
 idna==2.8                 # via requests
@@ -23,13 +23,13 @@ packaging==19.2           # via tox
 pluggy==0.13.0            # via tox
 py==1.8.0                 # via tox
 pycparser==2.19           # via cffi
-pyparsing==2.4.2          # via packaging
+pyparsing==2.4.4          # via packaging
 pytz==2019.3              # via django
 pyyaml==5.1.2             # via ansible, ansible-lint
 requests==2.22.0          # via docker
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.5       # via ansible-lint
-six==1.12.0               # via ansible-lint, cryptography, docker, packaging, tox, websocket-client
+six==1.13.0               # via ansible-lint, cryptography, docker, packaging, tox, websocket-client
 sqlparse==0.3.0           # via django
 toml==0.10.0              # via tox
 tox==3.14.0

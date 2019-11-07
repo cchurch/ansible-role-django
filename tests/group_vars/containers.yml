@@ -25,5 +25,5 @@ test_python3_version: "3.6"
 test_python2_executable: "python{{ test_python2_version }}"
 test_python3_executable: "python{{ test_python3_version }}"
 
-test_django1_version: "1.11.25"
-test_django2_version: "2.2.6"
+test_django1_version: "1.11.26"
+test_django2_version: "2.2.7"
