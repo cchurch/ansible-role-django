@@ -11,7 +11,8 @@ django_virtualenv: ""
 django_pre_commands: []
 
 django_main_commands:
-  - migrate
+  - command: migrate
+    run_once: true
   - collectstatic
 
 django_post_commands: []

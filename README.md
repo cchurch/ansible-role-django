@@ -49,7 +49,7 @@ The following variables may be defined to customize this role:
 - `django_pre_commands`: List of extra Django commands to run before the main
   commands; default is `[]`.
 - `django_main_commands`: List of Django commands to run for normal project
-  updates; default is `["migrate", "collectstatic"]`.
+  updates; default is `[{command: "migrate", run_once: true}, "collectstatic"]`.
 - `django_post_commands`: List of extra django commands to run after the main
   commands; default is `[]`.
 
@@ -61,6 +61,7 @@ module, e.g.:
     - check
     - command: migrate
       skip: yes
+      run_once: yes
     - command: collectstatic
       link: yes
     - command: my_custom_command --noinput
@@ -70,6 +71,10 @@ Each item may specify a `changed_when` conditional expression that will be
 evaluated to determine if the command made any changes; the `result` variable
 will be made available to the expression and contain the result from that
 particular `django_manage` module invocation.
+
+Each item may also specify `run_once` option to be passed to the `django_manage`
+module invocation, causing the task to only run on one host instead of all
+hosts targeted by the play.
 
 The following variable may be defined for the play or role invocation (but will
 not work if defined as an inventory group or host variable):
