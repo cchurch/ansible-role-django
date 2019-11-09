@@ -46,7 +46,8 @@
     link: "{{ item.link | default(omit) }}"
     merge: "{{ item.merge | default(omit) }}"
     skip: "{{ item.skip | default(omit) }}"
-  run_once: "{{ item.run_once | default(False) }}"
+  when: item.run_once | default(false) | ternary(inventory_hostname == ansible_play_hosts_all[0], true)
+  # run_once: "{{ item.run_once | default(false) }}"  # Doesn't work with Ansible < 2.8
   with_items: "{{ django_pre_commands }}"
   register: _django_pre_commands_results
   changed_when: >-
@@ -69,7 +70,8 @@
     link: "{{ item.link | default(omit) }}"
     merge: "{{ item.merge | default(omit) }}"
     skip: "{{ item.skip | default(omit) }}"
-  run_once: "{{ item.run_once | default(False) }}"
+  when: item.run_once | default(false) | ternary(inventory_hostname == ansible_play_hosts_all[0], true)
+  # run_once: "{{ item.run_once | default(false) }}"  # Doesn't work with Ansible < 2.8
   with_items: "{{ django_main_commands }}"
   register: _django_main_commands_results
   changed_when: >-
@@ -92,7 +94,8 @@
     link: "{{ item.link | default(omit) }}"
     merge: "{{ item.merge | default(omit) }}"
     skip: "{{ item.skip | default(omit) }}"
-  run_once: "{{ item.run_once | default(False) }}"
+  when: item.run_once | default(false) | ternary(inventory_hostname == ansible_play_hosts_all[0], true)
+  # run_once: "{{ item.run_once | default(false) }}"  # Doesn't work with Ansible < 2.8
   with_items: "{{ django_post_commands }}"
   register: _django_post_commands_results
   changed_when: >-
