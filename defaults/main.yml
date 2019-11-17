@@ -16,3 +16,5 @@ django_main_commands:
   - collectstatic
 
 django_post_commands: []
+
+django_run_once_host: "{{ ansible_play_hosts_all[0] }}"

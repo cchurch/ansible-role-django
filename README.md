@@ -52,6 +52,9 @@ The following variables may be defined to customize this role:
   updates; default is `[{command: "migrate", run_once: true}, "collectstatic"]`.
 - `django_post_commands`: List of extra django commands to run after the main
   commands; default is `[]`.
+- `django_run_once_host`: Hostname to use for running Django commands that
+  specify `run_once`; default is `"{{ ansible_play_hosts_all[0] }}"` to target
+  the first host specified in the play.
 
 Each item in a list of commands above may be specified as a string with only
 the command name or as a hash with a `command` key and any other options
@@ -62,6 +65,7 @@ module, e.g.:
     - command: migrate
       skip: yes
       run_once: yes
+      run_once_host: worker
     - command: collectstatic
       link: yes
     - command: my_custom_command --noinput
@@ -73,7 +77,9 @@ will be made available to the expression and contain the result from that
 particular `django_manage` module invocation.
 
 Each item may also specify `run_once` option, which causes the task to only run
-on one host instead of all hosts targeted by the play.
+on one host instead of all hosts targeted by the play. The item may also
+specify `run_once_host` to override the default hostname specified via
+`django_run_once_host`.
 
 The following variable may be defined for the play or role invocation (but will
 not work if defined as an inventory group or host variable):
