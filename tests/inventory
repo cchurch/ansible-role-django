@@ -9,7 +9,6 @@ ansible_python_interpreter=/usr/bin/env python
 django_centos6 image="centos:6"
 django_centos7 image="centos:7"
 django_centos8 image="centos:8"
-django_ubuntu14 image="ubuntu:trusty"
 django_ubuntu16 image="ubuntu:xenial"
 django_ubuntu18 image="ubuntu:bionic"
 
@@ -35,12 +34,8 @@ django_centos8
 ansible_python_interpreter=/usr/libexec/platform-python
 
 [ubuntu:children]
-ubuntu14
 ubuntu16
 ubuntu18
-
-[ubuntu14]
-django_ubuntu14
 
 [ubuntu16]
 django_ubuntu16
