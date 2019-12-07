@@ -3,3 +3,4 @@
 test_python3_version: "3.5"
 
 test_django2_version: "2.0.13"
+test_django3_version: ""
