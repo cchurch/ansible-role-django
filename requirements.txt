@@ -5,37 +5,38 @@
 #    pip-compile requirements.in
 #
 ansible-lint==4.2.0       # via -r requirements.in
-ansible==2.9.5            # via -r requirements.in, ansible-lint
-appdirs==1.4.3            # via virtualenv
-asgiref==3.2.3            # via django
-bumpversion==0.5.3        # via -r requirements.in
-certifi==2019.11.28       # via requests
+ansible==2.9.9            # via -r requirements.in, ansible-lint
+appdirs==1.4.4            # via virtualenv
+asgiref==3.2.7            # via django
+bump2version==1.0.0       # via bumpversion
+bumpversion==0.6.0        # via -r requirements.in
+certifi==2020.4.5.2       # via requests
 cffi==1.14.0              # via cryptography
 chardet==3.0.4            # via requests
-cryptography==2.8         # via ansible
+cryptography==2.9.2       # via ansible
 distlib==0.3.0            # via virtualenv
-django==3.0.4             # via -r requirements.in
-docker==4.2.0             # via -r requirements.in
+django==3.0.7             # via -r requirements.in
+docker==4.2.1             # via -r requirements.in
 filelock==3.0.12          # via tox, virtualenv
 idna==2.9                 # via requests
-importlib-metadata==1.5.0  # via pluggy, tox, virtualenv
-jinja2==2.11.1            # via ansible
+importlib-metadata==1.6.1  # via pluggy, tox, virtualenv
+jinja2==2.11.2            # via ansible
 markupsafe==1.1.1         # via jinja2
-packaging==20.1           # via tox
+packaging==20.4           # via tox
 pluggy==0.13.1            # via tox
 py==1.8.1                 # via tox
 pycparser==2.20           # via cffi
-pyparsing==2.4.6          # via packaging
-pytz==2019.3              # via django
-pyyaml==5.3               # via ansible, ansible-lint
+pyparsing==2.4.7          # via packaging
+pytz==2020.1              # via django
+pyyaml==5.3.1             # via ansible, ansible-lint
 requests==2.23.0          # via docker
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.10      # via ansible-lint
-six==1.14.0               # via ansible-lint, cryptography, docker, packaging, tox, virtualenv, websocket-client
+six==1.15.0               # via ansible-lint, cryptography, docker, packaging, tox, virtualenv, websocket-client
 sqlparse==0.3.1           # via django
-toml==0.10.0              # via tox
-tox==3.14.5               # via -r requirements.in
-urllib3==1.25.8           # via requests
-virtualenv==20.0.8        # via tox
+toml==0.10.1              # via tox
+tox==3.15.2               # via -r requirements.in
+urllib3==1.25.9           # via requests
+virtualenv==20.0.21       # via tox
 websocket-client==0.57.0  # via docker
 zipp==3.1.0               # via importlib-metadata
