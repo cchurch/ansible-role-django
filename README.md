@@ -4,7 +4,7 @@
 Django
 ======
 
-Configure and update a Django project. Requires Ansible 2.4 or later.
+Configure and update a Django project. Requires Ansible 2.8 or later.
 
 Requirements
 ------------
