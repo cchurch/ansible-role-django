@@ -10,13 +10,10 @@
         state: absent
       with_items:
         - /root/test_venv
-        - /home/admin/test_django1
         - /home/admin/test_django2
         - /home/admin/test_django3
-        - /home/normal/test_django1
         - /home/normal/test_django2
         - /home/normal/test_django3
-        - /home/normal/test_django1_venv2
         - /home/normal/test_django2_venv3
         - /home/normal/test_django3_venv3
     - name: create admin user to test become capabilities
@@ -32,56 +29,10 @@
         createhome: true
         home: /home/normal
         password: "$6$8yuM3YVsSYTjtPr$b742a/sSdpKpyuC9J7L2fHRrV1pUtHeJuUj6KrjQ7UsHRrT8ffvqnoUutJLVqIArHnm3/0GtF5DH5hnLn8rJo1"  # testpass
-    - name: install global test project requirements for python2
-      pip:
-        name: "Django=={{ test_django1_version }}"
-        executable: "pip2{{ (ansible_os_family == 'RedHat') | ternary('.7', '') }}"
     - name: install global test project requirements for python3
       pip:
         name: "Django=={{ test_django2_version }}"
         executable: "pip3{{ (ansible_os_family == 'RedHat' and ansible_distribution_major_version == '6') | ternary('.5', '') }}"
-
-- name: test configuring python2/django1 project as admin user
-  hosts: containers
-  gather_facts: false
-  tags: [admin, nobecome, django1, python2]
-  vars:
-    ansible_user: admin
-    ansible_pass: testpass
-    django_app_path: /home/admin/test_django1
-    test_python_executable: "{{ test_python2_executable }}"
-  pre_tasks:
-    - import_tasks: test_pre_tasks.yml
-  roles:
-    - role: cchurch.django
-      django_notify_on_updated: django initial update
-    - role: cchurch.django
-      django_notify_on_updated: django no change update
-    - role: cchurch.django
-      django_notify_on_updated: django changed when update
-      django_pre_commands:
-        - command: check
-          changed_when: result.out
-  post_tasks:
-    - import_tasks: test_post_tasks.yml
-    - name: run handlers now
-      meta: flush_handlers
-    - name: check that expected handlers ran
-      assert:
-        that:
-          - django_initial_update_handled
-          - django_no_change_update_handled is not defined
-          - django_changed_when_update_handled
-  handlers:
-    - name: django initial update
-      set_fact:
-        django_initial_update_handled: true
-    - name: django no change update
-      set_fact:
-        django_no_change_update_handled: true
-    - name: django changed when update
-      set_fact:
-        django_changed_when_update_handled: true
 
 - name: test configuring python3/django2 project as admin user
   hosts: containers
@@ -125,26 +76,6 @@
       set_fact:
         django_changed_when_update_handled: true
 
-- name: test becoming normal user from admin user to update python2/django1
-  hosts: containers
-  gather_facts: false
-  tags: [admin, normal, become, django1, python2]
-  vars:
-    ansible_user: admin
-    ansible_pass: testpass
-    django_app_path: /home/normal/test_django1
-    django_user: normal
-    test_python_executable: "{{ test_python2_executable }}"
-  pre_tasks:
-    - import_tasks: test_pre_tasks.yml
-      become: true
-      become_user: normal
-  roles:
-    - role: cchurch.django
-  post_tasks:
-    - import_tasks: test_post_tasks.yml
-      become: true
-
 - name: test becoming normal user from admin user to update python3/django2
   hosts: containers
   gather_facts: false
@@ -172,38 +103,6 @@
   roles:
     - role: cchurch.virtualenv
       virtualenv_path: /root/test_venv
-
-- name: test as normal unprivileged user creating a python2 virtualenv with django1
-  hosts: containers
-  gather_facts: false
-  tags: [normal, virtualenv, django1, python2]
-  vars:
-    ansible_user: normal
-    ansible_pass: testpass
-    django_app_path: /home/normal/test_django1_venv2
-    django_virtualenv: "{{ django_app_path }}/env"
-    test_python_executable: "{{ test_python2_executable }}"
-    virtualenv_python: "{{ test_python2_executable }}"
-    virtualenv_path: "{{ django_virtualenv }}"
-    virtualenv_requirements:
-      - "{{ django_app_path }}/requirements.txt"
-  pre_tasks:
-    - import_tasks: test_pre_tasks.yml
-    - name: create test requirements file
-      copy:
-        content: |
-          Django=={{ test_django1_version }}
-        dest: "{{ django_app_path }}/requirements.txt"
-  roles:
-    - role: cchurch.virtualenv
-    - role: cchurch.django
-  post_tasks:
-    - import_tasks: test_post_tasks.yml
-    - name: check that static root was created
-      stat:
-        path: "{{ django_virtualenv }}/bin/{{ test_python2_executable }}"
-      register: _test_django_venv_python
-      failed_when: not _test_django_venv_python.stat.exists
 
 - name: test as normal unprivileged user creating a python3 virtualenv with django2
   hosts: containers

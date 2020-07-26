@@ -14,24 +14,19 @@
           - "{{ inventory_hostname }}"
       delegate_to: localhost
 
-- name: install python 2.7 and 3.5 for centos6 container
+- name: install 3.5 for centos6 container
   hosts: containers:&centos6
   gather_facts: false
   tasks:
-    - name: install ius repo
-      shell: |
-        set -o pipefail
-        curl 'https://setup.ius.io/' | sh
-      args:
-        warn: false
-      register: _ius_install_result
-      changed_when: "'Nothing to do' not in _ius_install_result.stdout"
-    - name: install python 2.7 and 3.5 and pip
+    - name: install epel and ius repo
       yum:
         name:
-          - python-setuptools  # needed for pip module to work?
-          - python27
-          - python27-pip
+          - epel-release
+          - https://repo.ius.io/ius-release-el6.rpm
+    - name: install python 3.5 with pip
+      yum:
+        name:
+          - python-setuptools  # needed for pip to work with default python.
           - python35u
           - python35u-pip
 
@@ -40,11 +35,12 @@
   tasks:
     - name: install epel
       yum:
-        name: epel-release
-    - name: install pip and python3
+        name:
+          - epel-release
+    - name: install python3
       yum:
         name:
-          - python-pip
+          - python-pip  # needed for pip to work with default python.
           - python36
           - python36-pip
 
@@ -53,12 +49,11 @@
   tasks:
     - name: install epel
       package:
-        name: epel-release
-    - name: install python2 and python3 with pip
+        name:
+          - epel-release
+    - name: install python3 with pip
       package:
         name:
-          - python2
-          - python2-pip
           - python3
           - python3-pip
 
@@ -67,15 +62,18 @@
   gather_facts: false
   tasks:
     - name: check for and install python
-      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-      register: _python_install_result
-      changed_when: _python_install_result.stdout
+      raw: >-
+        test -e /usr/bin/python ||
+        test -e /usr/bin/python3 ||
+        (apt-get -y update && apt-get install -y {{ python_minimal_package | default('python-minimal') }})
+      register: _check_python_result
+      changed_when: _check_python_result.stdout
     - name: refresh facts
       setup:
-    - name: install pip and python3
+    - name: install python3
       apt:
         name:
-          - python-pip
+          - "{{ python_pip_package | default('python-pip') }}"  # needed for pip to work with default python.
           - python3
           - python3-pip
 
@@ -94,9 +92,8 @@
         mode: 0440
         owner: root
         group: root
-    - name: verify both python 2.7 and 3.x are present
+    - name: verify python 3.x is present
       command: "python{{ item }} -V"
       changed_when: false
       with_items:
-        - "{{ test_python2_version }}"
         - "{{ test_python3_version }}"
