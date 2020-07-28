@@ -1,7 +1,7 @@
 ---
 
 - name: test use of custom lookup plugin to evaluate changed_when for each item
-  hosts: all
+  hosts: all:!postgres
   gather_facts: false
   vars:
     commands:
