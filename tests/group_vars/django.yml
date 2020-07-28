@@ -1,0 +1,40 @@
+---
+
+django_db_password: DjangoDBpass
+
+django_user_db_prefix: "{{ inventory_hostname }}"
+
+django_run_once_host: "{{ inventory_hostname }}"
+
+django_settings_templates:
+  - src: manage.py.j2
+    dest: "{{ django_app_path }}/manage.py"
+    mode: "a+x"
+  - src: local_settings.py.j2
+    dest: "{{ django_app_path }}/proj/local_settings.py"
+
+django_settings: proj.settings
+
+django_pre_commands:
+  - check
+
+django_main_commands:
+  - command: migrate
+    run_once: true
+  - command: remove_stale_contenttypes --noinput
+  - collectstatic
+
+django_post_commands:
+  - command: test
+    apps: proj.app
+    failfast: yes
+    run_once: true
+
+django_static_root: "{{ django_app_path }}/proj/public/static"
+
+test_python3_version: "3.6"
+
+test_python3_executable: "python{{ test_python3_version }}"
+
+test_django2_version: "2.2.14"
+test_django3_version: "3.0.8"

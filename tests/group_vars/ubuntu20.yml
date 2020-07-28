@@ -1,3 +1,7 @@
 ---
 
 test_python3_version: "3.8"
+
+django_user_db_prefix: django_ubuntu20
+
+django_run_once_host: django1_ubuntu20

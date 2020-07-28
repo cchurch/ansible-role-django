@@ -1,1 +1,12 @@
 STATIC_ROOT = "{{ django_static_root }}"
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "{{ django_user_db }}",
+        "USER": "{{ django_user_db }}",
+        "PASSWORD": "{{ django_db_password }}",
+        "HOST": "django_postgres",
+        "PORT": "5432",
+    }
+}

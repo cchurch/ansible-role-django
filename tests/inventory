@@ -6,16 +6,30 @@ ansible_connection=local
 ansible_python_interpreter=/usr/bin/env python3
 
 [containers]
+django_postgres image="postgres:alpine"
 django_centos6 image="centos:6"
 django_centos7 image="centos:7"
 django_centos8 image="centos:8"
 django_ubuntu16 image="ubuntu:xenial"
 django_ubuntu18 image="ubuntu:bionic"
-django_ubuntu20 image="ubuntu:focal"
+django1_ubuntu20 image="ubuntu:focal" sleep_time=1
+django2_ubuntu20 image="ubuntu:focal" sleep_time=2
 
 [containers:vars]
 ansible_connection=docker
 ansible_user=root
+
+[postgres]
+django_postgres
+
+[django]
+django_centos6
+django_centos7
+django_centos8
+django_ubuntu16
+django_ubuntu18
+django1_ubuntu20
+django2_ubuntu20
 
 [centos:children]
 centos6
@@ -46,8 +60,10 @@ django_ubuntu16
 django_ubuntu18
 
 [ubuntu20]
-django_ubuntu20
+django1_ubuntu20
+django2_ubuntu20
 
 [ubuntu20:vars]
 python_minimal_package=python3-minimal
 python_pip_package=python3-pip
+python_psycopg2_package=python3-psycopg2

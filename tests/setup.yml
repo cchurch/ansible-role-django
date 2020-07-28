@@ -7,6 +7,11 @@
     - name: set flag whether to restart docker container
       set_fact:
         restart: "{{ provision_docker_restart | default(false) }}"
+    - name: create docker network
+      docker_network:
+        name: "{{ provision_docker_network }}"
+      delegate_to: localhost
+      run_once: true
     - import_role:
         name: chrismeyersfsu.provision_docker
       vars:
@@ -26,7 +31,10 @@
     - name: install python 3.5 with pip
       yum:
         name:
+          - "@Development tools"
           - python-setuptools  # needed for pip to work with default python.
+          - python-psycopg2
+          - libpqxx-devel
           - python35u
           - python35u-pip
 
@@ -41,6 +49,7 @@
       yum:
         name:
           - python-pip  # needed for pip to work with default python.
+          - python-psycopg2
           - python36
           - python36-pip
 
@@ -56,6 +65,7 @@
         name:
           - python3
           - python3-pip
+          - python3-psycopg2
 
 - name: check and install python on ubuntu containers
   hosts: containers:&ubuntu
@@ -74,11 +84,12 @@
       apt:
         name:
           - "{{ python_pip_package | default('python-pip') }}"  # needed for pip to work with default python.
+          - "{{ python_psycopg2_package | default('python-psycopg2') }}"
           - python3
           - python3-pip
 
 - name: install and configure sudo and rsync on containers
-  hosts: containers
+  hosts: containers:&django
   tasks:
     - name: install sudo and rsync
       package:

@@ -1,0 +1,31 @@
+---
+
+- block:
+
+    - name: run a django command
+      django_manage:
+        app_path: "{{ _django_app_path }}"
+        settings: "{{ django_settings | default(omit, true) }}"
+        virtualenv: "{{ django_virtualenv | default(omit, true) }}"
+        command: "{{ item.command | default(item) }}"
+        apps: "{{ item.apps | default(omit) }}"
+        cache_table: "{{ item.cache_table | default(omit) }}"
+        database: "{{ item.database | default(omit) }}"
+        failfast: "{{ item.failfast | default(omit) }}"
+        fixtures: "{{ item.fixtures | default(omit) }}"
+        link: "{{ item.link | default(omit) }}"
+        merge: "{{ item.merge | default(omit) }}"
+        skip: "{{ item.skip | default(omit) }}"
+      when: item.run_once | default(false) | ternary(inventory_hostname == (item.run_once_host | default(django_run_once_host, true)), true)
+      register: _django_command_result
+      changed_when: >-
+        (item.changed_when is defined) | ternary(
+          lookup('_django_eval', item.changed_when | default(false), result=_django_command_result),
+          _django_command_result.changed | default(false),
+        )
+
+  always:
+
+    - name: accumulate command results
+      set_fact:
+        _django_command_results: "{{ (_django_command_results | list) + [_django_command_result] }}"

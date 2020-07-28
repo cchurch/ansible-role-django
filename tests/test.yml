@@ -1,7 +1,7 @@
 ---
 
 - name: setup for tests
-  hosts: containers
+  hosts: containers:&django
   tags: [always]
   tasks:
     - name: remove test django paths
@@ -11,9 +11,7 @@
       with_items:
         - /root/test_venv
         - /home/admin/test_django2
-        - /home/admin/test_django3
         - /home/normal/test_django2
-        - /home/normal/test_django3
         - /home/normal/test_django2_venv3
         - /home/normal/test_django3_venv3
     - name: create admin user to test become capabilities
@@ -31,16 +29,19 @@
         password: "$6$8yuM3YVsSYTjtPr$b742a/sSdpKpyuC9J7L2fHRrV1pUtHeJuUj6KrjQ7UsHRrT8ffvqnoUutJLVqIArHnm3/0GtF5DH5hnLn8rJo1"  # testpass
     - name: install global test project requirements for python3
       pip:
-        name: "Django=={{ test_django2_version }}"
+        name:
+          - "Django=={{ test_django2_version }}"
+          - psycopg2-binary
         executable: "pip3{{ (ansible_os_family == 'RedHat' and ansible_distribution_major_version == '6') | ternary('.5', '') }}"
 
 - name: test configuring python3/django2 project as admin user
-  hosts: containers
+  hosts: containers:&django
   gather_facts: false
   tags: [admin, nobecome, django2, python3]
   vars:
     ansible_user: admin
     ansible_pass: testpass
+    django_user_db: "{{ django_user_db_prefix }}_admin2"
     django_app_path: /home/admin/test_django2
     test_python_executable: "{{ test_python3_executable }}"
   pre_tasks:
@@ -77,12 +78,13 @@
         django_changed_when_update_handled: true
 
 - name: test becoming normal user from admin user to update python3/django2
-  hosts: containers
+  hosts: containers:&django
   gather_facts: false
   tags: [admin, normal, become, django2, python3]
   vars:
     ansible_user: admin
     ansible_pass: testpass
+    django_user_db: "{{ django_user_db_prefix }}_normal2"
     django_app_path: /home/normal/test_django2
     django_user: normal
     test_python_executable: "{{ test_python3_executable }}"
@@ -97,7 +99,7 @@
       become: true
 
 - name: run virtualenv role first as root to install virtualenv package
-  hosts: containers
+  hosts: containers:&django
   gather_facts: false
   tags: [virtualenv]
   roles:
@@ -105,17 +107,23 @@
       virtualenv_path: /root/test_venv
 
 - name: test as normal unprivileged user creating a python3 virtualenv with django2
-  hosts: containers
+  hosts: containers:&django
   gather_facts: false
   tags: [normal, virtualenv, django2, python3]
   vars:
     ansible_user: normal
     ansible_pass: testpass
+    django_user_db: "{{ django_user_db_prefix }}_normal2venv3"
     django_app_path: /home/normal/test_django2_venv3
     django_virtualenv: "{{ django_app_path }}/env"
     test_python_executable: "{{ test_python3_executable }}"
     virtualenv_python: "{{ test_python3_executable }}"
     virtualenv_path: "{{ django_virtualenv }}"
+    virtualenv_pre_packages:
+      - name: setuptools
+        state: latest
+      - name: pip
+        state: latest
     virtualenv_requirements:
       - "{{ django_app_path }}/requirements.txt"
   pre_tasks:
@@ -124,6 +132,7 @@
       copy:
         content: |
           Django=={{ test_django2_version }}
+          psycopg2-binary
         dest: "{{ django_app_path }}/requirements.txt"
   roles:
     - role: cchurch.virtualenv
@@ -137,17 +146,23 @@
       failed_when: not _test_django_venv_python.stat.exists
 
 - name: test as normal unprivileged user creating a python3 virtualenv with django3
-  hosts: containers
+  hosts: containers:&django
   gather_facts: false
   tags: [normal, virtualenv, django3, python3]
   vars:
     ansible_user: normal
     ansible_pass: testpass
+    django_user_db: "{{ django_user_db_prefix }}_normal3venv3"
     django_app_path: /home/normal/test_django3_venv3
     django_virtualenv: "{{ django_app_path }}/env"
     test_python_executable: "{{ test_python3_executable }}"
     virtualenv_python: "{{ test_python3_executable }}"
     virtualenv_path: "{{ django_virtualenv }}"
+    virtualenv_pre_packages:
+      - name: setuptools
+        state: latest
+      - name: pip
+        state: latest
     virtualenv_requirements:
       - "{{ django_app_path }}/requirements.txt"
   pre_tasks:
@@ -157,6 +172,7 @@
       copy:
         content: |
           Django=={{ test_django3_version }}
+          psycopg2-binary
         dest: "{{ django_app_path }}/requirements.txt"
       when: test_django3_version | default('')
   tasks:

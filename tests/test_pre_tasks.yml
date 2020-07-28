@@ -1,5 +1,30 @@
 ---
 
+- name: create user for test django project
+  postgresql_user:
+    name: "{{ django_user_db }}"
+    password: "{{ django_db_password }}"
+    login_host: django_postgres
+    login_password: "{{ postgres_password }}"
+    role_attr_flags: CREATEDB,NOSUPERUSER
+  when: inventory_hostname == django_run_once_host
+
+- name: remove any existing database for test django project
+  postgresql_db:
+    name: "{{ django_user_db }}"
+    state: absent
+    login_host: django_postgres
+    login_password: "{{ postgres_password }}"
+  when: inventory_hostname == django_run_once_host
+
+- name: create database for test django project
+  postgresql_db:
+    name: "{{ django_user_db }}"
+    owner: "{{ django_user_db }}"
+    login_host: django_postgres
+    login_password: "{{ postgres_password }}"
+  when: inventory_hostname == django_run_once_host
+
 - name: create django path
   file:
     path: "{{ django_app_path }}'"

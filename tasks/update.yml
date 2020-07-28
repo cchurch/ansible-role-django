@@ -32,77 +32,56 @@
   with_items: "{{ django_settings_templates }}"
   register: _django_settings_templates_results
 
-- name: run django pre commands
-  django_manage:
-    app_path: "{{ _django_app_path }}"
-    settings: "{{ django_settings | default(omit, true) }}"
-    virtualenv: "{{ django_virtualenv | default(omit, true) }}"
-    command: "{{ item.command | default(item) }}"
-    apps: "{{ item.apps | default(omit) }}"
-    cache_table: "{{ item.cache_table | default(omit) }}"
-    database: "{{ item.database | default(omit) }}"
-    failfast: "{{ item.failfast | default(omit) }}"
-    fixtures: "{{ item.fixtures | default(omit) }}"
-    link: "{{ item.link | default(omit) }}"
-    merge: "{{ item.merge | default(omit) }}"
-    skip: "{{ item.skip | default(omit) }}"
-  when: item.run_once | default(false) | ternary(inventory_hostname == (item.run_once_host | default(django_run_once_host, true)), true)
-  # run_once: "{{ item.run_once | default(false) }}"  # Doesn't work with Ansible < 2.8
-  with_items: "{{ django_pre_commands }}"
-  register: _django_pre_commands_results
-  changed_when: >-
-    (item.changed_when is defined) | ternary(
-      lookup('_django_eval', item.changed_when | default(false), result=_django_pre_commands_results),
-      _django_pre_commands_results.changed | default(false),
-    )
+- name: reset django command results
+  set_fact:
+    _django_command_results: []
 
-- name: run main django commands
-  django_manage:
-    app_path: "{{ _django_app_path }}"
-    settings: "{{ django_settings | default(omit, true) }}"
-    virtualenv: "{{ django_virtualenv | default(omit, true) }}"
-    command: "{{ item.command | default(item) }}"
-    apps: "{{ item.apps | default(omit) }}"
-    cache_table: "{{ item.cache_table | default(omit) }}"
-    database: "{{ item.database | default(omit) }}"
-    failfast: "{{ item.failfast | default(omit) }}"
-    fixtures: "{{ item.fixtures | default(omit) }}"
-    link: "{{ item.link | default(omit) }}"
-    merge: "{{ item.merge | default(omit) }}"
-    skip: "{{ item.skip | default(omit) }}"
-  when: item.run_once | default(false) | ternary(inventory_hostname == (item.run_once_host | default(django_run_once_host, true)), true)
-  # run_once: "{{ item.run_once | default(false) }}"  # Doesn't work with Ansible < 2.8
+- name: run django pre commands
+  include_tasks: django_manage.yml
+  with_items: "{{ django_pre_commands }}"
+  register: _django_manage_results
+
+- name: combine pre command results
+  set_fact:
+    _django_pre_commands_results:
+      changed: "{{ _django_command_results | selectattr('changed', 'defined') | selectattr('changed') | list | length | bool }}"
+      failed: "{{ _django_command_results | selectattr('failed', 'defined') | selectattr('failed') | list | length | bool }}"
+      msg: "All items completed"
+      results: "{{ _django_manage_results.results | _django_zipmerge(_django_command_results) | list }}"
+
+- name: reset django command results
+  set_fact:
+    _django_command_results: []
+
+- name: run django main commands
+  include_tasks: django_manage.yml
   with_items: "{{ django_main_commands }}"
-  register: _django_main_commands_results
-  changed_when: >-
-    (item.changed_when is defined) | ternary(
-      lookup('_django_eval', item.changed_when | default(false), result=_django_main_commands_results),
-      _django_main_commands_results.changed | default(false),
-    )
+  register: _django_manage_results
+
+- name: combine main command results
+  set_fact:
+    _django_main_commands_results:
+      changed: "{{ _django_command_results | selectattr('changed', 'defined') | selectattr('changed') | list | length | bool }}"
+      failed: "{{ _django_command_results | selectattr('failed', 'defined') | selectattr('failed') | list | length | bool }}"
+      msg: "All items completed"
+      results: "{{ _django_manage_results.results | _django_zipmerge(_django_command_results) | list }}"
+
+- name: reset django command results
+  set_fact:
+    _django_command_results: []
 
 - name: run django post commands
-  django_manage:
-    app_path: "{{ _django_app_path }}"
-    settings: "{{ django_settings | default(omit, true) }}"
-    virtualenv: "{{ django_virtualenv | default(omit, true) }}"
-    command: "{{ item.command | default(item) }}"
-    apps: "{{ item.apps | default(omit) }}"
-    cache_table: "{{ item.cache_table | default(omit) }}"
-    database: "{{ item.database | default(omit) }}"
-    failfast: "{{ item.failfast | default(omit) }}"
-    fixtures: "{{ item.fixtures | default(omit) }}"
-    link: "{{ item.link | default(omit) }}"
-    merge: "{{ item.merge | default(omit) }}"
-    skip: "{{ item.skip | default(omit) }}"
-  when: item.run_once | default(false) | ternary(inventory_hostname == (item.run_once_host | default(django_run_once_host, true)), true)
-  # run_once: "{{ item.run_once | default(false) }}"  # Doesn't work with Ansible < 2.8
+  include_tasks: django_manage.yml
   with_items: "{{ django_post_commands }}"
-  register: _django_post_commands_results
-  changed_when: >-
-    (item.changed_when is defined) | ternary(
-      lookup('_django_eval', item.changed_when | default(false), result=_django_post_commands_results),
-      _django_post_commands_results.changed | default(false),
-    )
+  register: _django_manage_results
+
+- name: combine pre command results
+  set_fact:
+    _django_post_commands_results:
+      changed: "{{ _django_command_results | selectattr('changed', 'defined') | selectattr('changed') | list | length | bool }}"
+      failed: "{{ _django_command_results | selectattr('failed', 'defined') | selectattr('failed') | list | length | bool }}"
+      msg: "All items completed"
+      results: "{{ _django_manage_results.results | _django_zipmerge(_django_command_results) | list }}"
 
 - name: check if anything changed after running updates and notify handlers
   set_fact:
