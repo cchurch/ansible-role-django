@@ -14,36 +14,36 @@ env:
 matrix:
   include:
     - python: "3.7"
-      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="centos6"'
+      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="centos6,postgres"'
     - python: "3.7"
-      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="centos7"'
+      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="centos7,postgres"'
     - python: "3.7"
-      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="centos8"'
+      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="centos8,postgres"'
     - python: "3.7"
-      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="ubuntu16"'
+      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="ubuntu16,postgres"'
     - python: "3.7"
-      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="ubuntu18"'
+      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="ubuntu18,postgres"'
     - python: "3.7"
-      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="ubuntu20"'
-    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="centos6"'
-    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="centos7"'
-    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="centos8"'
-    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="ubuntu16"'
-    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="ubuntu18"'
-    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="ubuntu20"'
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos6" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos7" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos8" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu16" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu18" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu20" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+      env: 'ANSIBLE_VERSION="ansible~=2.8.0" ANSIBLE_LIMIT="ubuntu20,postgres"'
+    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="centos6,postgres"'
+    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="centos7,postgres"'
+    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="centos8,postgres"'
+    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="ubuntu16,postgres"'
+    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="ubuntu18,postgres"'
+    - env: 'ANSIBLE_VERSION="ansible~=2.9.0" ANSIBLE_LIMIT="ubuntu20,postgres"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos6,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos7,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos8,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu16,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu18,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu20,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
   allow_failures:
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos6" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos7" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos8" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu16" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu18" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
-    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu20" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos6,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos7,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="centos8,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu16,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu18,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
+    - env: 'ANSIBLE_VERSION="ansible>=2.10.0a1,<2.11" ANSIBLE_LIMIT="ubuntu20,postgres" ANSIBLE_ACTION_PLUGINS="tests/action_plugins_210"'
 
 before_install:
   - sudo apt-get update -qq
